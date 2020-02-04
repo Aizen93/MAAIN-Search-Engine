@@ -1,0 +1,40 @@
+.DS_Store
+src/gui
+src/*.o
+.class
+.properties
+.mf
+
+target/
+bin/
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+*.xml
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+/TP2/Betweenness/nbproject/private/
+/TP2/PSI-Projet/nbproject/private/
+/TP3/Modularité/nbproject/private/
+/TP3/Modu/nbproject/private/
+/TP3/Ayoub/nbproject/private/
+/TP4/Louvain/nbproject/private/
+/TP4/UFCPrediction/nbproject/private/
