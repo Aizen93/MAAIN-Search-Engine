@@ -1,0 +1,28 @@
+{
+  "name": "maain",
+  "version": "1.0.0",
+  "description": "Méthodes algorithmiques pour l'accès à l'information numérique, basé sur Wikipédia",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aizen93/MAAIN-Search-Engine.git"
+  },
+  "keywords": [
+    "search",
+    "engine",
+    "maain"
+  ],
+  "author": "Aouessar Melila",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Aizen93/MAAIN-Search-Engine/issues"
+  },
+  "homepage": "https://github.com/Aizen93/MAAIN-Search-Engine#readme",
+  "dependencies": {
+    "ejs": "^3.0.1",
+    "express": "^4.17.1"
+  }
+}
