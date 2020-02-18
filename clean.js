@@ -14,6 +14,10 @@ found_word = function(word, list){
     list.forEach(elmt => list.search(elmt));
 };
 
+dictionary = function() {
+
+}
+
 levenshteinDistance = function (s, t) {
     if (!s.length) return t.length;
     if (!t.length) return s.length;
