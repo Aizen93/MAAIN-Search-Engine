@@ -1,5 +1,5 @@
 body {
-    background-color: lightgreen;
+    background-color: rgb(39, 44, 39);
 }
 
 header .navbar {
@@ -13,7 +13,7 @@ header .navbar {
     background-size: cover;
     background-position: center center;
     padding: 50px 0;
-    min-height: 650px;
+    min-height: 450px;
     position: relative; 
 }
 
