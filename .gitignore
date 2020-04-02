@@ -31,10 +31,3 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
-/TP2/Betweenness/nbproject/private/
-/TP2/PSI-Projet/nbproject/private/
-/TP3/Modularité/nbproject/private/
-/TP3/Modu/nbproject/private/
-/TP3/Ayoub/nbproject/private/
-/TP4/Louvain/nbproject/private/
-/TP4/UFCPrediction/nbproject/private/

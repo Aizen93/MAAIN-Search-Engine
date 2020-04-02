@@ -1,44 +1,96 @@
-<!DOCTYPE html>
-<html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="metro" content="page de calcul du metro">
-        <title>MAAIN</title>
-        
-        <link href="/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/css/style.css" rel="stylesheet">
-    </head>
+<!doctype html>
+<html lang="fr" class="no-js">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <body>
-        <header>
-            <nav class="navbar navbar-inverse">
-                <a href="/" class="navbar-brand">MAAIN search engine !</a>
-                <ul class="nav navbar-nav">
-                    <li><a href="/">Home</a></li>
-                </ul>
-            </nav>
-        </header>
-        <section class="hero">
-            <div class="hero-content">
-                <h2>Wallah c'est de la bonne</h2>
-                <p>Moteur de recherche MAAIN</p>
-            </div>
-        </section>
-        <main>
-            <div class="container">
-                <div class="jumbotron text-center">
-                    <form action="/" method="post">
-                        <p>
-                            <label for="search">Barre de recherche : </label>
-                            <input type="text" name="search" id="search" autofocus />
-                        </p>
-                        <p><input type="submit" class="btn btn-lg btn-primary"/></p>
-                    </form>
-                </div>
-            </div>
-        </main>
-        <footer>
-            Site produit par Aouessar Oussama & Melila Lilya. Copyright &copy; 2020
-        </footer>
-    </body>
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/style.css">
+	<script src="js/modernizr.js"></script>
+  	
+	<title>MAAIN</title>
+</head>
+<body>
+	<header class="cd-main-header animate-search">
+		<div class="cd-logo"><a href="#0"><img src="img/MAAIN.png" alt="Logo"></a></div>
+
+		<nav class="cd-main-nav-wrapper">
+			<a href="#search" class="cd-search-trigger cd-text-replace">Search</a>
+			
+			<ul class="cd-main-nav">
+				<li><a href="https://www.wikipedia.org">Wikipedia</a></li>
+				<li><a href="#0">Brainiac</a></li>
+			</ul>
+		</nav>
+
+		<a href="#0" class="cd-nav-trigger cd-text-replace">Menu<span></span></a>
+	</header>
+	
+	<main class="cd-main-content">
+		<div class="content-center">
+            <h1>Resultat de la recherche ici</h1>
+            <h1>Simple et efficace</h1>
+            <h1>le front de cette partie sera fait plus tard !</h1>
+		</div>
+	</main>
+
+	<div id="search" class="cd-main-search">
+		<form action="/" method="post">
+			<input type="search" name="search" id="search" placeholder="Search...">
+
+			<div class="cd-select">
+				<select name="select-category">
+					<option value="all-categories">all Categories</option>
+					<option value="category1">Category 1</option>
+					<option value="category2">Category 2</option>
+				</select>
+				<span class="selected-value">all Categories</span>
+			</div>
+		</form>
+
+		<div class="cd-search-suggestions">
+			<div class="news">
+				<h3>History</h3>
+				<ul>
+					<li>
+						<a class="image-wrapper"><img src="img/placeholder.png" alt="News image"></a>
+						<h4><a class="cd-nowrap" href="#0">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</a></h4>
+						<time datetime="2016-01-12">Feb 03, 2016</time>
+					</li>
+
+					<li>
+						<a class="image-wrapper"><img src="img/placeholder.png" alt="News image"></a>
+						<h4><a class="cd-nowrap" href="#0">Incidunt voluptatem adipisci voluptates fugit beatae culpa eum, distinctio, assumenda est ad</a></h4>
+						<time datetime="2016-01-12">Jan 28, 2016</time>
+					</li>
+
+					<li>
+						<a class="image-wrapper"><img src="img/placeholder.png" alt="News image"></a>
+						<h4><a class="cd-nowrap" href="#0">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iusto, esse.</a></h4>
+						<time datetime="2016-01-12">Jan 12, 2016</time>
+					</li>
+				</ul>
+			</div>
+
+			<div class="quick-links">
+				<h3>Quick Links</h3>
+				<ul>
+					<li><a href="#0">Brainiac</a></li>
+					<li><a href="https://www.bing.com">Bing</a></li>
+					<li><a href="https://www.google.fr">Google</a></li>
+					<li><a href="https://www.wikipedia.org">Wikipedia</a></li>
+					<li><a href="https://www.yahoo.fr">Yahoo</a></li>
+				</ul>
+			</div>
+		</div>
+
+		<a href="#0" class="close cd-text-replace">Close Form</a>
+	</div>
+
+	<div class="cd-cover-layer"></div>
+<script src="js/jquery-2.1.4.js"></script>
+<script src="js/main.js"></script>
+</body>
 </html>

@@ -11,18 +11,20 @@ serv.listen(8080, function() {
     console.log("Server started");
 });
 
-var x = 0;
+//-------------------------------------------------------------------//
+//---------------------- CODE DICTIONNAIRE --------------------------//
+//-------------------------------------------------------------------//
+
+
+//-------------------------------------------------------------------//
+//--------------------- END CODE DICTIONNAIRE -----------------------//
+//-------------------------------------------------------------------//
 
 serv.get("/", function (req, res) {
-    
     res.render("pages/index.ejs");
 });
 
-
 serv.post("/", function (req, res) {
-    console.log("---------------------------");
-    console.log(req.body);
-    console.log("---------------------------");
     var search = String(req.body.search);
     console.log(search);
     res.render("pages/index", {data: req.body});
