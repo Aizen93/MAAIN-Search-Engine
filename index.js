@@ -42,6 +42,7 @@ function parseXML(bigfrwiki, corpusoutput) {
     var fileStream = fs.createReadStream(bigfrwiki);
     var corpus_stream = fs.createWriteStream(corpusoutput, {flags:'a'});
     var streamer = new saxPath.SaXPath(saxParser, '//page');
+    var finish = false;
     
     corpus_stream.write('<corpus version="0.10" xml:lang="fr">');
     streamer.on('match', function(xml) {
@@ -51,10 +52,13 @@ function parseXML(bigfrwiki, corpusoutput) {
                 count++;
             }
         }else{
-            fileStream.close();
-            corpus_stream.write('\n</corpus>');
-            console.log("Corpus created succefully !!");
-            console.log("Total pages : " + count);
+            if(!finish){
+                finish = true;
+                fileStream.close();
+                corpus_stream.write('\n</corpus>');
+                console.log("Corpus created succefully !!");
+                console.log("Total pages : " + count);
+            }
         }
     });
     streamer.on('error', function(){
