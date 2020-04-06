@@ -26,6 +26,8 @@
     "ejs": "^3.0.1",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
+    "remove-accents": "^0.4.2",
+    "remove-punctuation": "0.0.4",
     "sax": "^1.2.4",
     "saxpath": "^0.6.5"
   }
