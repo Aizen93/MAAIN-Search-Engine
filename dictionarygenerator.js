@@ -23,7 +23,7 @@ function dictionary(){
       var tab = texte.split(" ");
       tab = filter(tab);
       tab.forEach((item) => {
-        const regex = /[&,/<>{}=@0-9*+()-_|]/g;
+        const regex = /[&,/<>{}=@0-9*+()-_|\n]/g;
         const found = item.match(regex);
         if(found == null){
           if(words_occurence.has(""+item)) words_occurence.set(""+item, words_occurence.get(""+item)+1);
