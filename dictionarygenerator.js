@@ -112,6 +112,17 @@ function wordToLink(title){
     return link;
 }
 
+function trueLink(title){
+  var isReady = title.split("|");
+  if(isReady.length == 1){
+    return title;
+  }else{
+    return isReady[0];
+  }
+  console.log("something went wrong");
+}
+
+
 dictionary();
 //-------------------------------------------------------------------//
 //--------------------- END CODE DICTIONNAIRE -----------------------//
