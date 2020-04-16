@@ -13,7 +13,7 @@ var dictionary_array = new Array();
 function dictionary(){
   var fileStream = fs.createReadStream("./corpus.xml");
   var words_occurence = new  Map();
-  var streamer = new saxPath.SaXPath(saxParser, '//text');
+  var streamer = new saxPath.SaXPath(saxParser, '//page');
   var finish = false;
 
   streamer.on('match', function(xml) {
@@ -23,7 +23,7 @@ function dictionary(){
       var tab = texte.split(" ");
       tab = filter(tab);
       tab.forEach((item) => {
-        const regex = /[&,/<>{}=@0-9*+()-_|]/g;
+        const regex = /[&,/<>\n{}=@0-9*+()-_|]/g;
         const found = item.match(regex);
         if(found == null){
           if(words_occurence.has(""+item)) words_occurence.set(""+item, words_occurence.get(""+item)+1);
@@ -48,6 +48,7 @@ function dictionary(){
         console.log(dictionary_array);
         console.log("Total mots : " + dictionary_array.length);
         finish = true;
+        fileStream.close();
       }
     }
   });
@@ -93,7 +94,46 @@ dictionary();
 //---------------------------CODE GRAPH -----------------------------//
 //-------------------------------------------------------------------//
 
+var graph_map = new Map();
 
+function graph(){
+  var fileStream = fs.createReadStream("./graph.xml");
+  var words_occurence = new  Map();
+  var streamer = new saxPath.SaXPath(saxParser, '*');
+  var finish = false;
+
+  streamer.on('match', function(xml) {
+
+  });
+  fileStream.on('error', function(){
+    console.log("Error parsing file !!!");
+
+  });
+  fileStream.on('end', function(){
+
+    console.log("Graph created succefully !!!");
+  });
+
+  fileStream.pipe(saxParser);
+}
+
+function filter(list) {
+  var res = Array();
+  list.forEach((elmt,i) => {
+    if(elmt.length > 3 && elmt.length < 15 && list.indexOf(elmt) === i){
+      res.push(upper_noaccent(elmt));
+    }
+  });
+  return res;
+}
+
+function upper_noaccent(word) {
+  var accents = require('remove-accents');
+  return accents.remove(word.toString().toLocaleLowerCase());
+}
+
+
+dictionary();
 
 //-------------------------------------------------------------------//
 //------------------------ END CODE GRAPH ---------------------------//
