@@ -43,7 +43,14 @@ function graph(){
         var res = buffer1.substring(SP,TP);
         var tmp = res.split('|')[0];
         //console.log(tmp);
-        corpus_stream.write("        <title>"+tmp+"</title>\n\t");
+        if(tmp.includes("[[")){
+          var list = tmp.split(sub1);
+          list.forEach((item, i) => {
+            if(i > 0) corpus_stream.write("        <title>"+item.split('<')[0]+"</title>\n\t");
+          });
+        }else if(!tmp.includes('<','>')){
+          corpus_stream.write("        <title>"+tmp+"</title>\n\t");
+        }
         buffer1 = buffer1.substr(SP,buffer1.length);
       }else{
         buffer2 = string.substr(0,30000);
@@ -53,18 +60,20 @@ function graph(){
     }
     corpus_stream.write("   </link>\n\t");
     corpus_stream.write("</page>\n\t");
-
-    console.log('titre : '+title+', id : '+id);
+    //console.log('titre : '+title+', id : '+id);
   });
   fileStream.on('error', function(){
     console.log("Error parsing file !!!");
-
   });
+
   fileStream.on('end', function(){
+    fileStream.close();
+    corpus_stream.write('\n</graph>');
     var end = new Date().getTime();
     var time = end - start;
     console.log(end - start);
-    console.log("Graph created succefully !!!");
+    console.log("Graph created successfully !!!");
+    corpus_stream.close();
   });
   fileStream.pipe(saxParser);
 
