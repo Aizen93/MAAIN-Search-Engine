@@ -35,7 +35,7 @@
             <h1 class="message-search">Resultat de la recherche</h1>
 						<ul class="list-content">
 							<% if (list!=null) { %>
-							 <% for (var attr = 0; attr < 2; attr++) { %>
+							 <% for (var attr = 0; attr < list.length; attr++) { %>
 							<a href="#"><li>
 								<%= list[attr].title %>
 							</li></a>

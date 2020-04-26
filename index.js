@@ -2,31 +2,82 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var serv = express();
-var test = require('./test');
 var Node = require('./Node.js');
-
-serv.use(bodyParser.urlencoded({ extended: true }));
+var verrou = true;
+serv.use(bodyParser.urlencoded({ extended: false }));
 serv.set('view engine', 'ejs');
 var fs = require('fs');
 var saxParser = require('sax').createStream(true);
 var saxPath = require('saxpath');
 var removePunctuation = require('remove-punctuation');
 // Démarrage du serveur
-// graph.graph();;
-var dictionary_array;
-var graph_array;
+
 serv.use(express.static(__dirname + '/public'));
 serv.listen(8080, function() {
   console.log("Server started");
   //dictionary_array = dictionary();
 });
+var dictionary_array;
+var graph_array = [];
+graph();
+//-------------------------------------------------------------------//
+//-------------------------- CODE GRAPH -----------------------------//
+//-------------------------------------------------------------------//
+function get_by_title(list, str) {
+  for (var i = 0; i < list.length; i++) {
+    if(str == list[i].title) return list[i]
+  }
+  return null;
+}
+function get_by_id(list, id) {
+  for (var i = 0; i < list.length; i++) {
+    if(id == list[i].id) return list[i]
+  }
+  return null;
+}
+function graph() {
+  var fileStream = fs.createReadStream('./graph.xml');
+  var start = new Date().getTime();
+  var streamer = new saxPath.SaXPath(saxParser, '//page');
+  graph_array = new Array();
+  streamer.on('match', function(xml) {
+    //parser
+    var id = xml.split('<id>')[1].split('</id>')[0];
+    var title = xml.split('<title>')[1].split('</title>')[0];
+    var string = xml.split('<link>')[1].split('</link>')[0];
+    sub1 = '<title>';
+    sub2 = '</title>';
+    var list_link = string.split(sub1);
+    var node = new Node(id, title);
+    list_link.forEach((item) => {
+      if(item.length > 0) {
+        if(item.includes(sub2)) {
+          item = item.split(sub2)[0];
+          node.add_link(item);
+        }
+      }
+    });
+    graph_array.push(node);
+  });
+  fileStream.on('error', function(){
+    console.log("Error parsing file !!!");
+  });
+  fileStream.on('end', function(){
+    fileStream.close();
+    var end = new Date().getTime();
+    var time = end - start;
+    console.log(end - start);
+    console.log("Graph created succefully !!!");
+  });
+  fileStream.pipe(saxParser);
+}
+
+//-------------------------------------------------------------------//
+//------------------------ END CODE GRAPH ---------------------------//
+//-------------------------------------------------------------------//
 
 serv.get("/", function (req, res) {
-  //graph_array = [];
-  //graph_array.push(new Node(10,"Algorithme"));
-  //graph_array.push(new Node(11,"Algorithmique"));
-
-  if(graph_array.length != undefined) {
+  if(graph_array != undefined) {
     console.log("taille du graphe : "+graph_array.length);
     res.render("pages/index.ejs", {list:graph_array});
   }
@@ -43,9 +94,3 @@ serv.post("/", function (req, res) {
   console.log(upper_noaccent(search));
   res.render("pages/index", {data: req.body});
 });
-
-function main() {
-  graph_array = test.graph();
-  console.log("indice 0 : "+graph_array[0]);
-}
-main();
