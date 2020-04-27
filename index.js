@@ -35,9 +35,9 @@ function get_by_id(list, id) {
   }
   return null;
 }
+
 function graph() {
   var fileStream = fs.createReadStream('./graph.xml');
-  var start = new Date().getTime();
   var streamer = new saxPath.SaXPath(saxParser, '//page');
   graph_array = new Array();
   streamer.on('match', function(xml) {
@@ -64,9 +64,6 @@ function graph() {
   });
   fileStream.on('end', function(){
     fileStream.close();
-    var end = new Date().getTime();
-    var time = end - start;
-    console.log(end - start);
     console.log("Graph created succefully !!!");
   });
   fileStream.pipe(saxParser);
@@ -77,20 +74,19 @@ function graph() {
 //-------------------------------------------------------------------//
 
 serv.get("/", function (req, res) {
+  //res.render("pages/index.ejs", {data:null, list:null});
   if(graph_array != undefined) {
-    console.log("taille du graphe : "+graph_array.length);
-    res.render("pages/index.ejs", {list:graph_array});
+    res.render("pages/index.ejs", {data:null, list:graph_array});
   }
   else{
-    console.log("Graphe en cours de récupération...");
-    console.log(test.graph_array);
-    res.render("pages/index.ejs", {list:null});
+    console.log("Echec de la récupération du graphe...");
+    res.render("pages/index.ejs", {data:null, list:null});
   }
-    //dictionary();
 });
 
 serv.post("/", function (req, res) {
   var search = String(req.body.search);
-  console.log(upper_noaccent(search));
-  res.render("pages/index", {data: req.body});
+  console.log(search);
+  //var
+  res.render("pages/index", {data: req.body, list:null});
 });

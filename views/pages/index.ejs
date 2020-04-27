@@ -5,7 +5,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/modernizr.js"></script>
@@ -32,16 +31,36 @@
 	</div>
 	<main class="cd-main-content">
 		<div class="content-center">
-            <h1 class="message-search">Resultat de la recherche</h1>
-						<ul class="list-content">
+            <h1 class="message-search">Resultat de la recherche : <% data %></h1>
+						<center>
+							<ul class="list-content">
 							<% if (list!=null) { %>
-							 <% for (var attr = 0; attr < list.length; attr++) { %>
-							<a href="#"><li>
-								<%= list[attr].title %>
-							</li></a>
-							<% } %>
+							 	<% for (var attr = 0; attr < 10; attr++) { %>
+									<% if (list[attr].title.match("&apos;")) { %>
+										<% list[attr].title = list[attr].title.replace("&apos;","'") %>
+										<% lien+=tab[tab.length-1] %>
+									<%}%>
+									<%var lien ='https://fr.wikipedia.org/wiki/'%>
+									<%var tab = list[attr].title.split(" ")%>
+									<% if (tab.length > 1) { %>
+										<%for (var i = 0; i < (tab.length-1); i++) { %>
+											<%lien+=tab[i]+'_'%>
+										<%}%>
+										<%lien+=tab[tab.length-1]%>
+									<%}else{%>
+										<%lien+=list[attr].title%>
+										<%}%>
+							<a href= <%= lien %>>
+								<li>
+									<p><%= lien %></p>
+									<br>
+									<p class="title"><%= list[attr].title %></p>
+								</li>
+							</a>
+								<% } %>
 							<% } %>
 						</ul>
+					</center>
 		</div>
 	</main>
 
