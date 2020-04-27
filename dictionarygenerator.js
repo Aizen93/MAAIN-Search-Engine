@@ -9,30 +9,49 @@ var removePunctuation = require('remove-punctuation');
 //-------------------------------------------------------------------//
 var count = 0;
 var dictionary_array = new Array();
+var mot_page = new Map();
+var NBRPAGES = 700000;
+
 
 function dictionary(){
   var fileStream = fs.createReadStream("./corpus.xml");
   var words_occurence = new  Map();
-  var streamer = new saxPath.SaXPath(saxParser, '//text');
+  var streamer = new saxPath.SaXPath(saxParser, '//page');
   var finish = false;
 
   streamer.on('match', function(xml) {
-    if(count<1000){
-      console.log(count);
-      var texte = removePunctuation(xml.substring(6,xml.length - 7));
+    if(count < NBRPAGES){
+      var title = xml.split('<title>').pop().split('</title>')[0];      
+      console.log("page :"+count+" titre :"+title+"\n______________________________________\n");
+
+      var text = xml.split('<text xml:space="preserve">').pop().split('</text>')[0];
+
+      var texte = removePunctuation(text.substring(6, text.length - 7));
       var tab = texte.split(" ");
       tab = filter(tab);
       tab.forEach((item) => {
         const regex = /[&,/<>{}=@0-9*+()-_|\n]/g;
         const found = item.match(regex);
         if(found == null){
-          if(words_occurence.has(""+item)) words_occurence.set(""+item, words_occurence.get(""+item)+1);
-          else words_occurence.set(""+item, 1);
+          if(words_occurence.has(""+item) && mot_page.has(""+item)){
+            words_occurence.set(""+item, words_occurence.get(""+item)+1);
+            let tmp = mot_page.get(""+item);
+            if(!tmp.includes(title)){
+              tmp.push(title);
+              mot_page.set(""+item, tmp);
+            }
+          } else{
+            words_occurence.set(""+item, 1);
+            let tmpp = new Array();
+            tmpp.push(title);
+            mot_page.set(""+item, tmpp);
+          }
         }
       });
       count++;
     }else{
       if(!finish) {
+        console.log("total words before sort :"+words_occurence.size)
         let mapSort = new Map([...words_occurence].sort(([k, v], [k2, v2])=> {
           if (v < v2)  return 1;
           if (v > v2)  return -1;
@@ -44,27 +63,57 @@ function dictionary(){
           dictionary_array.push(word);
         }
         dictionary_array.sort();
-        console.log("Dictionary created succefully !!!");
+        console.log("streamer Dictionary created succefully !!");
         console.log(dictionary_array);
-        console.log("Total mots : " + dictionary_array.length);
+        console.log("streamer Total mots : " + dictionary_array.length);
         finish = true;
+        fileStream.close();
+        generateCollector();
       }
     }
+  });
+  streamer.on('error', function(){
+    console.log("Error parsing file !!!");
+
   });
   fileStream.on('error', function(){
     console.log("Error parsing file !!!");
 
   });
   fileStream.on('end', function(){
-    console.log("Total mots : " + words_occurence.length);
+    console.log("fileStream Total mots : " + words_occurence.size);
     const mapSort = new Map([...words_occurence.entries()].sort((a, b) => b[1] - a[1]));
     const iterator = mapSort.keys();
     for (var i = 0; i < 10000; i++) dictionary_array.push(iterator.next().value);
 
     console.log("Dictionary created succefully !!!");
-    console.log(dictionary);
+    console.log(dictionary_array);
+    generateCollector();
   });
   fileStream.pipe(saxParser);
+}
+
+function generateCollector(){
+  console.log("generating collector ....");
+  var collector_stream = fs.createWriteStream("./collector.xml", {flags:'a'});
+  collector_stream.write('<collector>\n');
+  
+  dictionary_array.forEach((item) => {
+    if(mot_page.has(""+item)){
+      collector_stream.write('\t<item>\n');
+      collector_stream.write('\t\t<mot>'+item+"</mot>\n");
+      collector_stream.write('\t\t<liens>\n');
+
+      var tab = mot_page.get(""+item);
+      tab.forEach((link) => {
+        collector_stream.write('\t\t\t<titre>'+splitTolink(link)+"</titre>\n");
+      });
+      collector_stream.write('\t\t</liens>\n');
+      collector_stream.write('\t</item>\n');
+    }
+  });
+  collector_stream.write('</collector>');
+  console.log("Collector generated succesfully");
 }
 
 function filter(list) {
