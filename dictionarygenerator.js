@@ -26,17 +26,15 @@ function dictionary(){
   streamer.on('match', function(xml) {
     if(count < NBRPAGES){
       if(xml.length < 800000){
-        //var title = xml.split('<title>').pop().split('</title>')[0];
         
         const indexOfFirst = xml.indexOf('<title>')+7;
-        const indexOfLast = xml.indexOf('</title>')-7;
+        const indexOfLast = xml.indexOf('</title>')-18;
         var title = xml.substr(indexOfFirst, indexOfLast);
 
 
         console.log("page :"+count+" titre : "+title+"\n______________________________________\n");
         console.log(mot_page.size);
         
-        //var text = xml.split('<text xml:space="preserve">').pop().split('</text>')[0];
         
         var tab = tokenizer.tokenize(xml);
         tab.forEach((word, i) => {
