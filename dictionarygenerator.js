@@ -10,7 +10,7 @@ var count = 0;
 var dictionary_array = new Array();
 var mot_page = new Map();
 var words_occurence = new  Map();
-var NBRPAGES = 200000;
+var NBRPAGES = 650000;
 
 
 //-------------------------------------------------------------------//
@@ -26,14 +26,19 @@ function dictionary(){
   streamer.on('match', function(xml) {
     if(count < NBRPAGES){
       if(xml.length < 800000){
-        var title = xml.split('<title>').pop().split('</title>')[0];
+        //var title = xml.split('<title>').pop().split('</title>')[0];
+        
+        const indexOfFirst = xml.indexOf('<title>')+7;
+        const indexOfLast = xml.indexOf('</title>')-7;
+        var title = xml.substr(indexOfFirst, indexOfLast);
+
+
         console.log("page :"+count+" titre : "+title+"\n______________________________________\n");
-        console.log(words_occurence.size);
         console.log(mot_page.size);
         
-        var text = xml.split('<text xml:space="preserve">').pop().split('</text>')[0];
+        //var text = xml.split('<text xml:space="preserve">').pop().split('</text>')[0];
         
-        var tab = tokenizer.tokenize(text);
+        var tab = tokenizer.tokenize(xml);
         tab.forEach((word, i) => {
           if(word.length > 3 && word.length < 15){
             let item = upper_noaccent(word);
