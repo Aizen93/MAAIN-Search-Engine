@@ -7,7 +7,7 @@ var l_array = new Array();
 var c_array = new Array();
 var i_array = new Array();
 
-calcul_cli=function() {
+calcul_cli=function(matrice) {
   var count = 0;
   l_array.push(count);
   matrice.forEach((item, i) => {
@@ -31,13 +31,35 @@ affichage_array=function() {
   console.log(i_array);
 }
 
-affichage=function() {
+affichage=function(matrice) {
   matrice.forEach((item, i) => {
+    var s = '';
     item.forEach((num, j) => {
-      console.log(num);
+      s += num+' ';
+      //console.log(num);
     });
+    console.log(s);
   });
 }
+function transpose_matrice(matrice){
+  var result = new Array();
+  for(var i = 0; i<matrice.length; i++){
+    result[i] = new Array();
+    for(var j=0; j<matrice[i].length; j++){
+      result[i][j] = matrice[j][i];
+    }
+  }
+  return result;
 
-calcul_cli();
+}
+
+var matriceT = new Array();
+matriceT[0] = new Array(14,9,30,5);
+matriceT[1] = new Array(6,10,4,-2);
+matriceT[2] = new Array(6,6,-9,1);
+matriceT[3] = new Array(3,9,-7,0);
+
+affichage(transpose_matrice(matriceT));
+
+calcul_cli(matriceT);
 affichage_array();
