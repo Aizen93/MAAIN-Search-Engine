@@ -5,20 +5,19 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/modernizr.js"></script>
-  	
+
 	<title>MAAIN</title>
 </head>
 <body>
 	<header class="cd-main-header animate-search">
-		<div class="cd-logo"><a href="#0"><img src="img/MAAIN.png" alt="Logo"></a></div>
+		<div class="cd-logo"><a href="#0"><img src="img/logo.png" alt="Logo"></a></div>
 
 		<nav class="cd-main-nav-wrapper">
 			<a href="#search" class="cd-search-trigger cd-text-replace">Search</a>
-			
+
 			<ul class="cd-main-nav">
 				<li><a href="https://www.wikipedia.org">Wikipedia</a></li>
 				<li><a href="#0">Brainiac</a></li>
@@ -27,12 +26,41 @@
 
 		<a href="#0" class="cd-nav-trigger cd-text-replace">Menu<span></span></a>
 	</header>
-	
+	<div class="footer">
+		<p>Projet MAAIN réalisé par Oussama Aouessar, Ilyesse Medjaji et Lilya Melila.</p>
+	</div>
 	<main class="cd-main-content">
 		<div class="content-center">
-            <h1>Resultat de la recherche ici</h1>
-            <h1>Simple et efficace</h1>
-            <h1>le front de cette partie sera fait plus tard !</h1>
+            <h1 class="message-search">Resultat de la recherche : <% data %></h1>
+						<center>
+							<ul class="list-content">
+							<% if (list!=null) { %>
+							 	<% for (var attr = 0; attr < 10; attr++) { %>
+									<% if (list[attr].title.match("&apos;")) { %>
+										<% list[attr].title = list[attr].title.replace("&apos;","'") %>
+										<% lien+=tab[tab.length-1] %>
+									<%}%>
+									<%var lien ='https://fr.wikipedia.org/wiki/'%>
+									<%var tab = list[attr].title.split(" ")%>
+									<% if (tab.length > 1) { %>
+										<%for (var i = 0; i < (tab.length-1); i++) { %>
+											<%lien+=tab[i]+'_'%>
+										<%}%>
+										<%lien+=tab[tab.length-1]%>
+									<%}else{%>
+										<%lien+=list[attr].title%>
+										<%}%>
+							<a href= <%= lien %>>
+								<li>
+									<p><%= lien %></p>
+									<br>
+									<p class="title"><%= list[attr].title %></p>
+								</li>
+							</a>
+								<% } %>
+							<% } %>
+						</ul>
+					</center>
 		</div>
 	</main>
 
@@ -90,6 +118,7 @@
 	</div>
 
 	<div class="cd-cover-layer"></div>
+
 <script src="js/jquery-2.1.4.js"></script>
 <script src="js/main.js"></script>
 </body>

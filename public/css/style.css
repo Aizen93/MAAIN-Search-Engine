@@ -1,4 +1,4 @@
-/* -------------------------------- 
+/* --------------------------------
 
 Primary style
 
@@ -16,6 +16,7 @@ body {
   font-family: "Open Sans", sans-serif;
   color: #333545;
   background-color: #ffffff;
+  margin-bottom:50px;
 }
 
 a {
@@ -76,7 +77,7 @@ select {
   pointer-events: none;
 }
 
-/* -------------------------------- 
+/* --------------------------------
 
 Patterns - reusable parts of our design
 
@@ -89,7 +90,7 @@ Patterns - reusable parts of our design
   white-space: nowrap;
 }
 
-/* -------------------------------- 
+/* --------------------------------
 
 Header
 
@@ -119,7 +120,7 @@ Header
 }
 @media only screen and (min-width: 1024px) {
   .cd-main-header {
-    height: 80px;
+    height: 100px;
   }
   .cd-main-header.nav-is-visible {
     -webkit-transform: translateX(0);
@@ -144,8 +145,8 @@ Header
 
 .cd-logo {
   display: inline-block;
+  margin-left: 0px;
   height: 100%;
-  margin-left: 10px;
   /* remove jump on iOS devices - when we fire the navigation */
   -webkit-transform: translateZ(0);
   -moz-transform: translateZ(0);
@@ -156,17 +157,18 @@ Header
   backface-visibility: hidden;
 }
 .cd-logo img {
+  height: 90%;
   display: block;
-  margin-top: 5px;
+  margin-top: 0px;
 }
 @media only screen and (min-width: 1024px) {
   .cd-logo {
     position: absolute;
     z-index: 3;
-    margin-left: 1%;
+    margin-left: 3%;
   }
   .cd-logo img {
-    margin-top: 6px;
+    margin-top: 3px;
   }
 }
 
@@ -324,7 +326,7 @@ Header
   }
 }
 
-/* -------------------------------- 
+/* --------------------------------
 
 Search Form
 
@@ -777,7 +779,7 @@ Search Form
   }
 }
 
-/* -------------------------------- 
+/* --------------------------------
 
 Content cover layer
 
@@ -808,7 +810,7 @@ Content cover layer
   }
 }
 
-/* -------------------------------- 
+/* --------------------------------
 
 Page main content
 
@@ -819,7 +821,7 @@ Page main content
   height: calc(100vh - 50px);
   position: relative;
   z-index: 2;
-  background-color: #40508e;
+  background-color: #A9CCE3;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-transition: -webkit-transform 0.3s;
@@ -869,7 +871,7 @@ Page main content
   }
 }
 
-/* -------------------------------- 
+/* --------------------------------
 
 JavaScript Disabled
 
@@ -956,4 +958,46 @@ JavaScript Disabled
 }
 .no-js .cd-main-search .selected-value {
   display: none;
+}
+
+
+
+.list-content {
+  list-style:none;
+  padding-left:0;
+}
+.message-search{
+  font-size: 30px;
+  font-family: 'Lato', Helvetica, sans-serif;
+  color: white;
+}
+.title{
+  font-size : 20px;
+  color: #3498DB;
+  font-weight: bold;
+}
+.list-content a li {
+  text-align: left;
+  background: white;
+  border: 8px solid white;
+  border-radius: 5px;
+  box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0.7);
+  margin: 1em 0;
+  font-family: 'Lato', Helvetica, sans-serif;
+  width: 80%;
+}
+.footer{
+  background-color: #A9CCE3;
+  color: white;
+  font-family: 'Lato', Helvetica, sans-serif;
+  text-align: right;
+}
+
+.list-content a li:hover {
+ color:goldenrod;
+}
+.list-content a{
+  text-decoration: none;
+  color: inherit;
+  display:block;
 }

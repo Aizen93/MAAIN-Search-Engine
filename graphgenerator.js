@@ -5,19 +5,14 @@ var saxPath = require('saxpath');
 //-------------------------------------------------------------------//
 //-------------------------- CODE GRAPH -----------------------------//
 //-------------------------------------------------------------------//
-var fileStream = fs.createReadStream("./corpus.xml");
-var corpus_stream = fs.createWriteStream('./graph.xml');
+
 var string = "";
 var count = 1;
-function graph(){
-  var start = new Date().getTime();
-  var words_occurence = new  Map();
+
+function parser(corpus_stream) {
+
   var streamer = new saxPath.SaXPath(saxParser, '//page');
-  var finish = false;
-
-  var i = 0;
-  corpus_stream.write('<graph version="0.10" xml:lang="fr">\n\t');
-
+  var fileStream = fs.createReadStream("./corpus.xml");
   streamer.on('match', function(xml) {
     console.log(count);
     count++;
@@ -34,7 +29,7 @@ function graph(){
     string.replace(buffer1, "");
     sub1 = '[[';
     sub2 = ']]';
-    while (string.length > 0){
+    while (string.length > 0 || !(buffer1.indexOf('[[') < 0 || buffer1.indexOf(']]') < 0)){
       if(!(buffer1.indexOf('[[') < 0 || buffer1.indexOf(']]') < 0)) {
         var SP = buffer1.indexOf(sub1)+sub1.length;
         var string1 = buffer1.substr(0,SP);
@@ -43,7 +38,14 @@ function graph(){
         var res = buffer1.substring(SP,TP);
         var tmp = res.split('|')[0];
         //console.log(tmp);
-        corpus_stream.write("        <title>"+tmp+"</title>\n\t");
+        if(tmp.includes("[[")){
+          var list = tmp.split(sub1);
+          list.forEach((item, i) => {
+            if(i > 0) corpus_stream.write("        <title>"+item.split('<')[0]+"</title>\n\t");
+          });
+        }else if(!tmp.includes('<','>')){
+          corpus_stream.write("        <title>"+tmp+"</title>\n\t");
+        }
         buffer1 = buffer1.substr(SP,buffer1.length);
       }else{
         buffer2 = string.substr(0,30000);
@@ -53,24 +55,46 @@ function graph(){
     }
     corpus_stream.write("   </link>\n\t");
     corpus_stream.write("</page>\n\t");
-
-    console.log('titre : '+title+', id : '+id);
+    if(count == 627287) {
+      corpus_stream.write('\n</graph>')
+      fileStream.close();
+    };
+    //console.log('titre : '+title+', id : '+id);
   });
   fileStream.on('error', function(){
     console.log("Error parsing file !!!");
-
   });
+
   fileStream.on('end', function(){
-    var end = new Date().getTime();
-    var time = end - start;
-    console.log(end - start);
-    console.log("Graph created succefully !!!");
+    fileStream.close();
+    console.log("Graph created successfully !!!");
   });
   fileStream.pipe(saxParser);
-
 }
+
+function graph(){
+  var corpus_stream = fs.createWriteStream('./graph.xml');
+  var start = new Date().getTime();
+  var words_occurence = new  Map();
+
+  corpus_stream.write('<graph version="0.10" xml:lang="fr">\n\t');
+
+  parser(corpus_stream);
+
+  var end = new Date().getTime();
+  var time = end - start;
+  console.log(end - start);
+}
+
 graph();
 
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
 //-------------------------------------------------------------------//
 //------------------------ END CODE GRAPH ---------------------------//
 //-------------------------------------------------------------------//

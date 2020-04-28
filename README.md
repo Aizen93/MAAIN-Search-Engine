@@ -3,5 +3,5 @@ Méthodes algorithmiques pour l'accès à l'information numérique, basé sur Wi
 
 ## Members:
 -	Aouessar Oussama @aouessar
--	Medjadi Mohamed Ilyess @medjadi
+-	Medjadi Mohamed Ilyesse @medjadi
 -	Melila Lilya @melila
