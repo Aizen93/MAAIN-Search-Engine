@@ -19,6 +19,11 @@ serv.listen(8080, function() {
 });
 var dictionary_array;
 var graph_array = [];
+//count = 0;
+l_array = [0];
+c_array = new Array();
+i_array = new Array();
+var count = 0;
 graph();
 //-------------------------------------------------------------------//
 //-------------------------- CODE GRAPH -----------------------------//
@@ -37,9 +42,9 @@ function get_by_id(list, id) {
 }
 
 function graph() {
+  var i = 0;
   var fileStream = fs.createReadStream('./graph.xml');
   var streamer = new saxPath.SaXPath(saxParser, '//page');
-  graph_array = new Array();
   streamer.on('match', function(xml) {
     //parser
     var id = xml.split('<id>')[1].split('</id>')[0];
@@ -58,6 +63,8 @@ function graph() {
       }
     });
     graph_array.push(node);
+    calcul_cli(line_graph(i));
+    i++;
   });
   fileStream.on('error', function(){
     console.log("Error parsing file !!!");
@@ -73,8 +80,76 @@ function graph() {
 //------------------------ END CODE GRAPH ---------------------------//
 //-------------------------------------------------------------------//
 
+//-------------------------------------------------------------------//
+//-------------------------- CODE CLI -------------------------------//
+//-------------------------------------------------------------------//
+
+function line_graph(i) {
+  var result = new Array();
+  var d = graph_array[i].links.length;
+  graph_array.forEach((item, j) => {
+    var bool = false;
+    graph_array[i].links.forEach((link, i) => {
+      if(item.title === link) bool = true;
+    });
+    if(bool) result.push(1/d);
+    else result.push(0);
+  });
+  return result;
+}
+
+function calcul_cli(list) {
+    list.forEach((num, j) => {
+      if(num > 0){
+        c_array.push(num);
+        i_array.push(j);
+        count++;
+      }
+    });
+    l_array.push(count);
+}
+
+function get_line_matrice(j) {
+  var res = new Array();
+  var list_indice = new Array();
+  var n = 0, indice = 0, nb_elemt = l_array[j+1]-l_array[j];
+
+  for (var i = 0; i < matrice.length; i++) res.push(0);
+  if(nb_elemt == 0)   return res;
+
+  while ((n != j) && (indice < i_array.length)) {
+    if(i_array[indice] >= i_array[indice+1]) n++;
+    indice ++;
+  }
+  while((i_array[indice] < i_array[indice+1]) && ((indice+1)<i_array.length)) {
+    list_indice.push(i_array[indice++]);
+  }
+  if(indice == i_array.length) indice--;
+  list_indice.push(i_array[indice]);
+  indice = l_array[j];
+  if(nb_elemt == 1) res[list_indice[0]] = c_array[indice];
+
+  for (var i = 0; i < list_indice.length; i++) res[list_indice[i]] = c_array[indice++];
+
+  return res;
+}
+
+function affichage_array() {
+  console.log("Tableau L : ");
+  console.log(l_array);
+  console.log("Tableau C : ");
+  console.log(c_array);
+  console.log("Tableau I : ");
+  console.log(i_array);
+}
+
+//-------------------------------------------------------------------//
+//------------------------ END CODE CLI -----------------------------//
+//-------------------------------------------------------------------//
+
 serv.get("/", function (req, res) {
   //res.render("pages/index.ejs", {data:null, list:null});
+  affichage_array();
   if(graph_array != undefined) {
     res.render("pages/index.ejs", {data:null, list:graph_array});
   }
