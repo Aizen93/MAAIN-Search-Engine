@@ -17,6 +17,105 @@ serv.listen(8080, function() {
   console.log("Server started");
   //dictionary_array = dictionary();
 });
+
+//-------------------------------------------------------------------//
+//------------------------ CODE COLLECTOR ---------------------------//
+//-------------------------------------------------------------------//
+const word = {
+  occ : Number(),
+  links : Array(),
+  getLinks: function () {
+    return this.links;
+  }
+};
+
+function test(){
+  var count = 0;
+  var tmp = 0;
+  var readline = require('readline');
+  var stream = require('stream');
+
+  var instream = fs.createReadStream('./collector.xml');
+  var outstream = new stream;
+  outstream.readable = true;
+  outstream.writable = true;
+
+  var rl = readline.createInterface({
+      input: instream,
+      output: outstream,
+      terminal: false
+  });
+
+  var collector = new Map();
+  var mot;
+  rl.on('line', function(line) {
+      if(line.includes("</mot>")){
+          //mot = Object.create(word);
+          
+          let indexOfFirst = line.indexOf('">')+2;
+          let indexOfLast = line.indexOf('</mot>') - indexOfFirst;
+          let m = line.substr(indexOfFirst, indexOfLast);
+          
+          indexOfFirst = line.indexOf('">')+2;
+          indexOfLast = line.indexOf('</mot>') - indexOfFirst;
+          //mot.occ = Number(line.substr(indexOfFirst, indexOfLast));
+          collector.set(m, new Array());
+          mot=m;
+          //collector.set(m, mot);
+          
+          console.log(collector.size +" new Word : "+m);
+      }
+      else if(line.includes("<titre>")){
+          let indexOfFirst = line.indexOf('<titre>')+7;
+          let indexOfLast = line.indexOf('</titre>') - indexOfFirst;
+          let titre = line.substr(indexOfFirst, indexOfLast);
+          //mot.links.push(titre);
+          collector.get(mot).push(titre);
+      }
+
+      count++;
+      tmp++;
+      if(tmp == 1000000){
+          console.log(count);
+          tmp = 0;
+      }
+  });
+
+  instream.on('end', function(){
+      console.log("total mot : " + collector.size);
+      console.log(collector.get("quot")+" "+collector.get("algorithme").occ);
+    });
+}
+test();
+
+function parseXML() {
+  var fileStream = fs.createReadStream("./collector.xml");
+  var streamer = new saxPath.SaXPath(saxParser, '//item');
+  var count  =0 ;
+  streamer.on('match', function(xml) {
+      count++;
+      console.log(count);
+
+  });
+  streamer.on('error', function(){
+      console.log("Error parsing "+ bigfrwiki +" file !");
+  });
+  fileStream.on('error', function(){
+      console.log("Error parsing "+ bigfrwiki +" file !!!");
+  });
+  fileStream.on('end', function(){
+      console.log("Corpus created succefully !!!");
+      console.log("Total pages : " + count);
+  });
+  fileStream.pipe(saxParser);
+}
+//parseXML();
+
+//-------------------------------------------------------------------//
+//---------------------- END CODE COLLECTOR -------------------------//
+//-------------------------------------------------------------------//
+
+
 var dictionary_array;
 var graph_array = [];
 //count = 0;

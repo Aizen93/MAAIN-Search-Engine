@@ -55,10 +55,7 @@ function parser(corpus_stream) {
     }
     corpus_stream.write("   </link>\n\t");
     corpus_stream.write("</page>\n\t");
-    if(count == 627287) {
-      corpus_stream.write('\n</graph>')
-      fileStream.close();
-    };
+    
     //console.log('titre : '+title+', id : '+id);
   });
   fileStream.on('error', function(){
@@ -67,6 +64,7 @@ function parser(corpus_stream) {
 
   fileStream.on('end', function(){
     fileStream.close();
+    corpus_stream.write('\n</graph>');
     console.log("Graph created successfully !!!");
   });
   fileStream.pipe(saxParser);
