@@ -6,6 +6,7 @@ matrice[3] = new Array(0,3,0,0);
 var l_array = new Array();
 var c_array = new Array();
 var i_array = new Array();
+v=[1,2,3,4];
 
 calcul_cli=function(matrice) {
   var count = 0;
@@ -41,6 +42,23 @@ affichage=function(matrice) {
     console.log(s);
   });
 }
+
+function produit_vecteur_matrice(v) {
+  var n = l_array.length-1, dimV = v.length;
+  if (dimV!=n) {
+      console.log("erreur dans les dimensions");
+      return null;
+  }
+  var p = new Array();
+  for (var i = 0; i < n; i++) p[i] = 0;
+  for (var i = 0; i < n; i++) {
+    for (var j = l_array[i]; j < l_array[i+1]; j++) {
+      p[i]+=c_array[j]*v[i_array[j]];
+    }
+  }
+  return p;
+}
+
 function transpose_matrice(matrice){
   var result = new Array();
   for(var i = 0; i<matrice.length; i++){
@@ -77,9 +95,59 @@ function dist_manhattan(x, y){
   }
 }
 
-function pagerangzero(matrice, eps){
-  var vec_P = [];
+function vecteur_transpose(v) {
+  var n = l_array.length-1, m = c_array.length, dimV = v.length;
+  if (dimV!=n){
+      console.log("erreur dans les dimensions");
+      return null;
+  }
+  var p = new Array();
+  for (var i = 0; i < n; i++) p[i] = 0;
+  for (var i = 0; i < n; i++) {
+    for (var j = 0; j < array.length; j++)  p[i_array[j]]+=c_array[j]*v[i];
+  }
+  return p;
+}
+
+function vecteur_transpose_ligne_null(v){
+  var n = l_array.length-1, m = c_array.length, dimV = v.length;
+
+  if (dimV!=n) {
+      console.log("erreur dans les dimensions");
+      return null;
+  }
+  var p = new Array();
+  for (var i = 0; i < n; i++) p[i] = 0;
+  nbaleas=n/300
+  if (nbaleas==0):
+      nbaleas=1
+  delta=1/nbaleas
+  for i in range(n):
+      if (L[i]==L[i+1]):
+          aleas=random.sample(range(0, n), nbaleas)
+          for j in aleas:
+              P[j]+=delta*V[i]
+      else:
+          for c in range(L[i],L[i+1]):
+              P[I[c]]+=C[c]*V[i]
+  return P
+}
+
+function pagerangzero(V){
+
+/*  var vec_P = [];
   cpt =0;
+  for (var i = 0; i < matrice.length; i++) {
+    var ligne = matrice[i];
+    for (var j = 0; j < ligne.length; j++) {
+      if (ligne[j] == 0) {
+        vec_P[cpt] = 1;
+      }else{
+        vec_P[cpt] = 0;
+      }
+      cpt++;
+    }
+  }
   for (var x in M) {
     if (x == 0) {
       vec_P[cpt] = 1;
@@ -95,7 +163,7 @@ function pagerangzero(matrice, eps){
     d= dist_manhattan(vec_P, vec_Pk);
     vec_P = vec_Pk;
   }
-  return vec_P;
+  return vec_P;*/
 }
 
 var matriceT = new Array();
@@ -108,3 +176,6 @@ affichage(transpose_matrice(matriceT));
 
 calcul_cli(matriceT);
 affichage_array();
+console.log("-------------------");
+var tp = produit_vecteur_matrice(v);
+console.log(tp);
