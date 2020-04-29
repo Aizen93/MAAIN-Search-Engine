@@ -10,7 +10,7 @@ var saxPath = require('saxpath');
 var dataURL = './frwiki-20190120-pages-articles.xml';
 //var dataURL = './public/data/frwiki-debut.xml';
 var corpusURL = "./corpus.xml";
-var NUMBER_OF_PAGE = 600000;
+var NUMBER_OF_PAGE = 400000;
 var count = 0;
 var regexp = [/intelligence artificielle/i, /informati*/i, /nouvelle technologie/i, /robot/i];
 
@@ -36,7 +36,7 @@ function parseXML(bigfrwiki, corpusoutput) {
     corpus_stream.write('<corpus version="0.10" xml:lang="fr">');
     streamer.on('match', function(xml) {
         if(count < NUMBER_OF_PAGE){
-            if(filtrer(xml)){
+            if(xml.length < 800000 && filtrer(xml)){
                 corpus_stream.write("\n\t" + xml);
                 count++;
             }
