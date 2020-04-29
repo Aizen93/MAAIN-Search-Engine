@@ -50,7 +50,52 @@ function transpose_matrice(matrice){
     }
   }
   return result;
+}
 
+function pagerank_steps(matrice, sommet, nb_pas){
+  var vec_P = [];
+  cpt =0;
+  for (var x in M) {
+    if (x == sommet) {
+      vec_P[cpt] = 1;
+    }else{
+      vec_P[cpt] = 0;
+    }
+    cpt++;
+  }
+
+  for(var i= 0; i<nb_pas; i++){
+    vec_P = transpose_matrice(P);
+    console.log('Probabilité = '+vec_P.toString());
+  }
+}
+
+function dist_manhattan(x, y){
+  for ( var i = 0; i < x.length; i++ ) {
+    x[i] = Math.round( Math.random()*10 );
+    y[i] = Math.round( Math.random()*10 );
+  }
+}
+
+function pagerangzero(matrice, eps){
+  var vec_P = [];
+  cpt =0;
+  for (var x in M) {
+    if (x == 0) {
+      vec_P[cpt] = 1;
+    }else{
+      vec_P[cpt] = 0;
+    }
+    cpt++;
+  }
+
+  var d = eps;
+  while(d>=eps){
+    vec_Pk = transpose_matrice(vec_P);
+    d= dist_manhattan(vec_P, vec_Pk);
+    vec_P = vec_Pk;
+  }
+  return vec_P;
 }
 
 var matriceT = new Array();
