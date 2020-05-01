@@ -88,6 +88,110 @@ function pagerank_steps(matrice, sommet, nb_pas){
   }
 }
 
+//New version
+function empty_mat(n){
+  var res = []
+  for(var i = 0; i<n; i++){
+    res[i] = 0;
+  } 
+  return res;
+}
+
+function produitVTlignes0(mat_c,mat_l,mat_i,v){
+  var n = mat_l.length-1;
+  var m = mat_c.length;
+  var dimV = v.length;
+  if(dimV != n){
+    console.log('dimensions error');
+    return null;
+  }
+  var p = empty_mat(n);
+  var nbaleas = n/300;
+  if(nbaleas == 0){
+    nbaleas=1;
+  }
+  var delta = 1/nbaleas;
+  for(var i = 0; i<n; i++){
+    if(mat_l[i] == mat_l[i+1]){
+      var aleas_tab = get_sample(n, nbaleas);
+      var aleas = aleas_tab[Math.floor(Math.random() * Math.floor(aleas_tab.length))];
+      for(var j=0; j<aleas; j++){
+        p[j]+=delta * V[i];
+      }
+    }else{
+      for(var k = mat_l[i]; k<mat_l[i+1]; k++){
+        p[mat_i[c]]+=mat_c[c] * v[i];
+      }
+    }
+  }
+  return p;
+}
+
+function is_visited(nb, tab){
+  for(var i = 0; i<tab.length; i++){
+    if(tab[i] == nb){
+      return true;
+    }
+  }
+  return false;
+}
+function get_sample(nb, tab){
+  var res = [];
+  var visited_elements = []
+  for(var i =0; i<nb; i++){
+    var visited = true;
+    while(visited == true){
+      var rand = Math.floor(Math.random() * Math.floor(nb));
+      if(!is_visited(rand, visited_elements)){
+        visited = false;
+      }
+    }
+    res[res.length+1]=rand
+  }
+  return res;
+}
+
+function add(a, i){
+  return a+i;
+}
+
+
+function norm1(P1,P2){
+  if(P1.length != P2.length){
+    console.log("dimensions error in function norm1")
+  }
+  var n = P1.length;
+  var res = [];
+  for (var i =0; i<n; i++){
+    res = Math.abs(P1[i]-P2[i]);
+  }
+  return res;
+}
+
+
+function pagerank_steps_bis(mat_c, mat_l, mat_i, prob_Z, d, nb_pas){
+  var cv = [];
+  var n = L.length - 1;
+  var P1 = prob_Z;
+  var cpt = 0;
+  for(var i =0; i<nb_pas; i++){
+    var P2 = d/n +(1-d)* produitVTlignes0(mat_c, mat_l, mat_i, P1);
+    var diff = norm1(P1,P2);
+    cv.append(diff);
+    cpt++;
+    if(cpt%10 == 0){
+      console.log('boucle: '+cpt);
+      var sum = P2.reduce(add, 0);
+      console.log('somme =: '+sum);
+    }
+  }
+  return P2;
+}
+
+
+
+
+
 function dist_manhattan(x, y){
   for ( var i = 0; i < x.length; i++ ) {
     x[i] = Math.round( Math.random()*10 );
@@ -117,19 +221,27 @@ function vecteur_transpose_ligne_null(v){
       return null;
   }
   var p = new Array();
-  for (var i = 0; i < n; i++) p[i] = 0;
-  nbaleas=n/300
-  if (nbaleas==0):
+  for (var i = 0; i < n; i++){
+     p[i] = 0;
+  }
+  var nbaleas=n/300
+  if (nbaleas==0){
       nbaleas=1
-  delta=1/nbaleas
-  for i in range(n):
-      if (L[i]==L[i+1]):
+  }
+  var delta=1/nbaleas
+  for (i in range(n)){
+      if (L[i]==L[i+1]){
           aleas=random.sample(range(0, n), nbaleas)
-          for j in aleas:
+          for (j in aleas){
               P[j]+=delta*V[i]
-      else:
-          for c in range(L[i],L[i+1]):
+          }
+      }
+      else{
+          for (c in range(L[i],L[i+1])){
               P[I[c]]+=C[c]*V[i]
+          }
+      }
+  }
   return P
 }
 
