@@ -38,7 +38,7 @@ function dictionary(){
         let tab = tokenizer.tokenize(xml);
         
         tab.forEach((word, i) => {
-          if(word.length > 3 && word.length < 15 && word != "apos"){
+          if(word.length > 3 && word.length <= 15 && word != "apos" && word != "quot"){
             let item = lower_noaccent(word);
           
             const regex = /[&,/<>{}=@0-9*+()-_|\n]/g;
@@ -47,12 +47,12 @@ function dictionary(){
               if(mot_page.get(item) != null){
                 words_occurence.set(item, words_occurence.get(item) + 1);
                 let tmp = mot_page.get(item);
-                if(!tmp.includes(title) && tmp.length < 3000){
+                if(!tmp.includes(title) && tmp.length < 1500){
                   tmp.push(title);
                   mot_page.set(item, tmp);
                 }
               } else{
-                if(mot_page.size < 1100000){
+                if(mot_page.size < 600000){
                   words_occurence.set(item, 1);
                   let title_liste = new Array();
                   title_liste.push(title);

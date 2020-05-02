@@ -3,35 +3,25 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var serv = express();
 var Node = require('./Node.js');
-var verrou = true;
-serv.use(bodyParser.urlencoded({ extended: false }));
-serv.set('view engine', 'ejs');
 var fs = require('fs');
 var saxParser = require('sax').createStream(true);
 var saxPath = require('saxpath');
-var removePunctuation = require('remove-punctuation');
 // Démarrage du serveur
-
+serv.use(bodyParser.urlencoded({ extended: true }));
 serv.use(express.static(__dirname + '/public'));
+serv.set('view engine', 'ejs');
 serv.listen(8080, function() {
   console.log("Server started");
-  //dictionary_array = dictionary();
 });
 
 //-------------------------------------------------------------------//
 //------------------------ CODE COLLECTOR ---------------------------//
 //-------------------------------------------------------------------//
-const word = {
-  occ : Number(),
-  links : Array(),
-  getLinks: function () {
-    return this.links;
-  }
-};
 
-function test(){
-  var count = 0;
-  var tmp = 0;
+var collector = new Map();
+var search_word = [];
+
+function collectorLauncher(){
   var readline = require('readline');
   var stream = require('stream');
 
@@ -45,71 +35,33 @@ function test(){
       output: outstream,
       terminal: false
   });
-
-  var collector = new Map();
+  
   var mot;
   rl.on('line', function(line) {
       if(line.includes("</mot>")){
-          //mot = Object.create(word);
-          
           let indexOfFirst = line.indexOf('">')+2;
           let indexOfLast = line.indexOf('</mot>') - indexOfFirst;
           let m = line.substr(indexOfFirst, indexOfLast);
           
-          indexOfFirst = line.indexOf('">')+2;
-          indexOfLast = line.indexOf('</mot>') - indexOfFirst;
-          //mot.occ = Number(line.substr(indexOfFirst, indexOfLast));
           collector.set(m, new Array());
-          mot=m;
-          //collector.set(m, mot);
-          
-          console.log(collector.size +" new Word : "+m);
+          mot = m;
       }
       else if(line.includes("<titre>")){
-          let indexOfFirst = line.indexOf('<titre>')+7;
-          let indexOfLast = line.indexOf('</titre>') - indexOfFirst;
-          let titre = line.substr(indexOfFirst, indexOfLast);
-          //mot.links.push(titre);
-          collector.get(mot).push(titre);
-      }
-
-      count++;
-      tmp++;
-      if(tmp == 1000000){
-          console.log(count);
-          tmp = 0;
+          if(collector.get(mot).length < 200){
+            let indexOfFirst = line.indexOf('<titre>')+7;
+            let indexOfLast = line.indexOf('</titre>') - indexOfFirst;
+            let titre = line.substr(indexOfFirst, indexOfLast);
+            collector.get(mot).push(titre);
+          }
       }
   });
 
   instream.on('end', function(){
       console.log("total mot : " + collector.size);
-      console.log(collector.get("quot")+" "+collector.get("algorithme").occ);
+      //console.log("-------"+collector.get("quot"));
     });
 }
-test();
-
-function parseXML() {
-  var fileStream = fs.createReadStream("./collector.xml");
-  var streamer = new saxPath.SaXPath(saxParser, '//item');
-  var count  =0 ;
-  streamer.on('match', function(xml) {
-      count++;
-      console.log(count);
-
-  });
-  streamer.on('error', function(){
-      console.log("Error parsing "+ bigfrwiki +" file !");
-  });
-  fileStream.on('error', function(){
-      console.log("Error parsing "+ bigfrwiki +" file !!!");
-  });
-  fileStream.on('end', function(){
-      console.log("Corpus created succefully !!!");
-      console.log("Total pages : " + count);
-  });
-  fileStream.pipe(saxParser);
-}
-//parseXML();
+collectorLauncher();
 
 //-------------------------------------------------------------------//
 //---------------------- END CODE COLLECTOR -------------------------//
@@ -123,7 +75,7 @@ l_array = [0];
 c_array = new Array();
 i_array = new Array();
 var count = 0;
-graph();
+//graph();
 //-------------------------------------------------------------------//
 //-------------------------- CODE GRAPH -----------------------------//
 //-------------------------------------------------------------------//
@@ -245,22 +197,40 @@ function affichage_array() {
 //-------------------------------------------------------------------//
 //------------------------ END CODE CLI -----------------------------//
 //-------------------------------------------------------------------//
-
-serv.get("/", function (req, res) {
-  //res.render("pages/index.ejs", {data:null, list:null});
-  affichage_array();
-  if(graph_array != undefined) {
-    res.render("pages/index.ejs", {data:null, list:graph_array});
-  }
-  else{
-    console.log("Echec de la récupération du graphe...");
-    res.render("pages/index.ejs", {data:null, list:null});
-  }
+serv.get("/:page", function (req, res) {
+  var perPage = 10;
+  var page = req.params.page || 1;
+  let tab = collector.get(search_word[search_word.length-1]);
+  if(tab == undefined) tab = [];
+  let resu = tab.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
+  res.render("pages/index", {history: search_word, data:tab.length, list: resu, current: page, pages: Math.ceil(tab.length / perPage)});  
 });
 
+serv.get("/", function (req, res) {
+  //affichage_array();
+  var perPage = 10;
+  var page = req.params.page || 1;
+  let tab = collector.get(search_word[search_word.length-1]);
+  if(tab == undefined) tab = [];
+  let resu = tab.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
+  res.render("pages/index", {history: search_word, data:tab.length, list: resu, current: page, pages: Math.ceil(tab.length / perPage)});
+});
+
+function sorthistory(mot){
+  const index = search_word.indexOf(mot);
+  if (index > -1) {
+    search_word.splice(index, 1);
+  }
+  search_word.push(mot);
+}
+
 serv.post("/", function (req, res) {
-  var search = String(req.body.search);
-  console.log(search);
-  //var
-  res.render("pages/index", {data: req.body, list:null});
+  if(!search_word.includes(req.body.search)) search_word.push(String(req.body.search));
+  else sorthistory(req.body.search);
+  var perPage = 10;
+  var page = req.params.page || 1;
+  let tab = collector.get(search_word[search_word.length-1]);
+  if(tab == undefined) tab = [];
+  let resu = tab.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
+  res.render("pages/index", {history: search_word, data:tab.length, list: resu, current: page, pages: Math.ceil(tab.length / perPage)});
 });
