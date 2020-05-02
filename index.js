@@ -4,8 +4,8 @@ var bodyParser = require('body-parser');
 var serv = express();
 var Node = require('./Node.js');
 var fs = require('fs');
-var saxParser = require('sax').createStream(true);
-var saxPath = require('saxpath');
+var readline = require('readline');
+var stream = require('stream');
 // Démarrage du serveur
 serv.use(bodyParser.urlencoded({ extended: true }));
 serv.use(express.static(__dirname + '/public'));
@@ -22,14 +22,12 @@ var collector = new Map();
 var search_word = [];
 
 function collectorLauncher(){
-  var readline = require('readline');
-  var stream = require('stream');
 
   var instream = fs.createReadStream('./collector.xml');
   var outstream = new stream;
   outstream.readable = true;
   outstream.writable = true;
-
+  var count = 0;
   var rl = readline.createInterface({
       input: instream,
       output: outstream,
@@ -39,20 +37,25 @@ function collectorLauncher(){
   var mot;
   rl.on('line', function(line) {
       if(line.includes("</mot>")){
+        if(count >= 3500){
           let indexOfFirst = line.indexOf('">')+2;
           let indexOfLast = line.indexOf('</mot>') - indexOfFirst;
           let m = line.substr(indexOfFirst, indexOfLast);
 
           collector.set(m, new Array());
           mot = m;
+        }
+        count++;
       }
       else if(line.includes("<titre>")){
-          if(collector.get(mot).length < 200){
+        if(count > 3500){
+          if(collector.get(mot).length < 500){
             let indexOfFirst = line.indexOf('<titre>')+7;
             let indexOfLast = line.indexOf('</titre>') - indexOfFirst;
             let titre = line.substr(indexOfFirst, indexOfLast);
             collector.get(mot).push(titre);
           }
+        }
       }
   });
 
@@ -70,12 +73,10 @@ collectorLauncher();
 
 var dictionary_array;
 var graph_array = [];
-//count = 0;
-l_array = [0];
-c_array = new Array();
-i_array = new Array();
+var indice_title = new Map();
+var l_array = [], c_array = [], i_array = [];
 var count = 0;
-//graph();
+graph();
 //-------------------------------------------------------------------//
 //-------------------------- CODE GRAPH -----------------------------//
 //-------------------------------------------------------------------//
@@ -105,25 +106,29 @@ function graph() {
   });
   var node, id, title,boolean_link = false, list_link;
   var indice = 0;
+  var count = 0;
   rl.on('line', function(line) {
-    if(line.includes('<id>')) id = line.split('<id>')[1].split('</id>')[0];
-    else if(line.includes('<title>')) {
-      let indexOfFirst = line.indexOf('<title>')+7;
-      let indexOfLast = line.indexOf('</title>') - indexOfFirst;
-      if(boolean_link) {
-        node.add_link(line.substr(indexOfFirst, indexOfLast));
-      }else{
-        title = line.substr(indexOfFirst, indexOfLast);
-        node = new Node(id, title);
+    //if(count < 50000){
+      if(line.includes('<id>')) id = line.split('<id>')[1].split('</id>')[0];
+      else if(line.includes('<title>')) {
+        let indexOfFirst = line.indexOf('<title>')+7;
+        let indexOfLast = line.indexOf('</title>') - indexOfFirst;
+        if(boolean_link) {
+          node.add_link(line.substr(indexOfFirst, indexOfLast));
+        }else{
+          title = line.substr(indexOfFirst, indexOfLast);
+          node = new Node(id, title);
+          count++;
+        }
       }
-    }
-    else if(line.includes('<link>')) boolean_link = true;
-    else if(line.includes('</link>')){
-      graph_array.push(node);
-      indice_title.set(title, indice);
-      indice++;
-      boolean_link = false;
-    }
+      else if(line.includes('<link>')) boolean_link = true;
+      else if(line.includes('</link>')){
+        graph_array.push(node);
+        indice_title.set(title, indice);
+        indice++;
+        boolean_link = false;
+      }
+    //}
   });
   instream.on('end', function(){
     console.log("Graph created succefully !!!");
@@ -150,9 +155,10 @@ function calcul_cli() {
     var d = links_list.length;
     for (var j = 0; j < d; j++) {
       var tmp = indice_title.get(links_list[j]);
-      c_array.push(1/d);
-      if(tmp == undefined) i_array.push(-1);
-      else i_array.push(tmp);
+      if(tmp != undefined){
+        c_array.push(1/d);
+        i_array.push(tmp);
+      }
       count++;
     }
     l_array.push(count);
