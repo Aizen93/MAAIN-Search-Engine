@@ -26,7 +26,7 @@
 
 		<a href="#0" class="cd-nav-trigger cd-text-replace">Menu<span></span></a>
 	</header>
-	
+
 	<main class="cd-main-content">
 		<div class="content-center">
 			<% if (data != 0) { %>
@@ -41,7 +41,6 @@
 					<% for (var attr = 0; attr < list.length; attr++) { %>
 						<% if (list[attr].match("&apos;")) { %>
 							<% list[attr] = list[attr].replace("&apos;","'") %>
-							<% lien+=tab[tab.length-1] %>
 						<%}%>
 						<%var lien ='https://fr.wikipedia.org/wiki/'%>
 						<%var tab = list[attr].split(" ")%>
@@ -95,7 +94,7 @@
 						<% } %>
 					</ul>
 				<% } %>
-			</div>	
+			</div>
 		</div>
 	</main>
 
