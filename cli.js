@@ -1,29 +1,58 @@
 var matrice = new Array();
-matrice[0] = new Array(0,3,5,8);
-matrice[1] = new Array(1,0,2,0);
-matrice[2] = new Array(0,0,0,0);
-matrice[3] = new Array(0,3,0,0);
+matrice[0] = new Array(0,1/2,0,1/2);
+matrice[1] = new Array(0,0,1,0);
+matrice[2] = new Array(0,0,0,1);
+matrice[3] = new Array(1/3,1/3,1/3,0);
 var l_array = new Array();
 var c_array = new Array();
 var i_array = new Array();
 v=[1,2,3,4];
 
-calcul_cli=function(matrice) {
-  var count = 0;
-  l_array.push(count);
-  matrice.forEach((item, i) => {
-    item.forEach((num, j) => {
-      if(num > 0){
-        c_array.push(num);
+
+function calcul_cli(graph_array) {
+  var size = graph_array.length;
+  l_array = [0];
+  c_array = new Array();
+  i_array = new Array();
+  count = 0;
+  for (var i = 0; i < size; i++) {
+    for (var j = 0; j < size; j++) {
+      if(graph_array[i][j] > 0){
+        c_array.push(graph_array[i][j]);
         i_array.push(j);
         count++;
       }
-    });
+    }
     l_array.push(count);
-  });
+  }
 }
 
-affichage_array=function() {
+function get_line_matrice(j) {
+  var res = new Array();
+  var list_indice = new Array();
+  var n = 0, indice = 0, nb_elemt = l_array[j+1]-l_array[j];
+
+  for (var i = 0; i < matrice.length; i++) res.push(0);
+  if(nb_elemt == 0)   return res;
+
+  while ((n != j) && (indice < i_array.length)) {
+    if(i_array[indice] >= i_array[indice+1]) n++;
+    indice ++;
+  }
+  while((i_array[indice] < i_array[indice+1]) && ((indice+1)<i_array.length)) {
+    list_indice.push(i_array[indice++]);
+  }
+  if(indice == i_array.length) indice--;
+  list_indice.push(i_array[indice]);
+  indice = l_array[j];
+  if(nb_elemt == 1) res[list_indice[0]] = c_array[indice];
+
+  for (var i = 0; i < list_indice.length; i++) res[list_indice[i]] = c_array[indice++];
+
+  return res;
+}
+
+function affichage_array() {
   console.log("Tableau L : ");
   console.log(l_array);
   console.log("Tableau C : ");
@@ -31,6 +60,7 @@ affichage_array=function() {
   console.log("Tableau I : ");
   console.log(i_array);
 }
+
 
 affichage=function(matrice) {
   matrice.forEach((item, i) => {
@@ -53,7 +83,7 @@ function produit_vecteur_matrice(v) {
   for (var i = 0; i < n; i++) p[i] = 0;
   for (var i = 0; i < n; i++) {
     for (var j = l_array[i]; j < l_array[i+1]; j++) {
-      p[i]+=c_array[j]*v[i_array[j]];
+      p[i_array[j]]+=c_array[j]*v[i];
     }
   }
   return p;
@@ -70,7 +100,7 @@ function transpose_matrice(matrice){
   return result;
 }
 
-function pagerank_steps(matrice, sommet, nb_pas){
+/*function pagerank_steps(matrice, sommet, nb_pas){
   var vec_P = [];
   cpt =0;
   for (var x in M) {
@@ -86,7 +116,7 @@ function pagerank_steps(matrice, sommet, nb_pas){
     vec_P = transpose_matrice(P);
     console.log('Probabilité = '+vec_P.toString());
   }
-}
+}*/
 
 //New version
 function empty_mat(n){
@@ -96,37 +126,6 @@ function empty_mat(n){
   } 
   return res;
 }
-
-function produitVTlignes0(mat_c,mat_l,mat_i,v){
-  var n = mat_l.length-1;
-  var m = mat_c.length;
-  var dimV = v.length;
-  if(dimV != n){
-    console.log('dimensions error');
-    return null;
-  }
-  var p = empty_mat(n);
-  var nbaleas = n/300;
-  if(nbaleas == 0){
-    nbaleas=1;
-  }
-  var delta = 1/nbaleas;
-  for(var i = 0; i<n; i++){
-    if(mat_l[i] == mat_l[i+1]){
-      var aleas_tab = get_sample(n, nbaleas);
-      var aleas = aleas_tab[Math.floor(Math.random() * Math.floor(aleas_tab.length))];
-      for(var j=0; j<aleas; j++){
-        p[j]+=delta * V[i];
-      }
-    }else{
-      for(var k = mat_l[i]; k<mat_l[i+1]; k++){
-        p[mat_i[c]]+=mat_c[c] * v[i];
-      }
-    }
-  }
-  return p;
-}
-
 function is_visited(nb, tab){
   for(var i = 0; i<tab.length; i++){
     if(tab[i] == nb){
@@ -155,29 +154,58 @@ function add(a, i){
   return a+i;
 }
 
-
 function norm1(P1,P2){
   if(P1.length != P2.length){
     console.log("dimensions error in function norm1")
   }
   var n = P1.length;
-  var res = [];
+  var res = 0;
   for (var i =0; i<n; i++){
-    res = Math.abs(P1[i]-P2[i]);
+    res += Math.abs(P1[i]-P2[i]);
   }
   return res;
 }
 
+function mult_mat(dn, nd, P){
+  for(var i = 0; i<P.length; i++){
+    P[i] = dn + nd * P[i];
+  }
+  return P;
+}
 
-function pagerank_steps_bis(mat_c, mat_l, mat_i, prob_Z, d, nb_pas){
-  var cv = [];
-  var n = L.length - 1;
+function pagerank_eps(mat_c, mat_l, mat_i, prob_Z, eps){
   var P1 = prob_Z;
   var cpt = 0;
+  var diff = Number.MAX_VALUE;
+  var P2 = [];
+  while(diff>eps){
+    P2 = produit_vecteur_matrice(P1);
+    diff = norm1(P1,P2);
+    //console.log("count: "+cpt+"\ndiff: "+diff+ "\neps: "+eps+ "\nP1: "+P1+"\nP2: "+P2+"\n");
+    P1=P2;
+    cpt++;
+    if(cpt%10 == 0){
+      console.log('boucle: '+cpt);
+      var sum = P2.reduce(add, 0);
+      console.log('somme =: '+sum);
+      console.log('diff = '+diff);
+    }
+  }
+  return P2;
+}
+
+function pagerank_zap_steps(mat_c, mat_l, mat_i, prob_Z, d, nb_pas){
+  var n = mat_l.length - 1;
+  var P1 = prob_Z;
+  var cpt = 0;
+  var diff = Number.MAX_VALUE;
+  var P2 = [];
   for(var i =0; i<nb_pas; i++){
-    var P2 = d/n +(1-d)* produitVTlignes0(mat_c, mat_l, mat_i, P1);
-    var diff = norm1(P1,P2);
-    cv.append(diff);
+    P2 = mult_mat(d/n, (1-d), produit_vecteur_matrice(P1) );
+    diff = norm1(P1,P2);
+    //console.log("count: "+cpt+"\ndiff: "+diff+ "\nnb_pas: "+i+ "\nP1: "+P1+"\nP2: "+P2+"\n");
+
+    P1=P2;
     cpt++;
     if(cpt%10 == 0){
       console.log('boucle: '+cpt);
@@ -188,16 +216,29 @@ function pagerank_steps_bis(mat_c, mat_l, mat_i, prob_Z, d, nb_pas){
   return P2;
 }
 
+function pagerank_zap_eps(mat_c, mat_l, mat_i, prob_Z, d, eps){
+  var n = mat_l.length - 1;
+  var P1 = prob_Z;
+  var cpt = 0;
+  var diff = Number.MAX_VALUE;
+  var P2 = []
+  while(diff>eps){
+    P2 = mult_mat(d/n, (1-d), produit_vecteur_matrice(P1));
+    diff = norm1(P1,P2);
+    //console.log("count: "+cpt+"\ndiff: "+diff+ "\neps: "+eps+ "\nP1: "+P1+"\nP2: "+P2+"\n");
 
-
-
-
-function dist_manhattan(x, y){
-  for ( var i = 0; i < x.length; i++ ) {
-    x[i] = Math.round( Math.random()*10 );
-    y[i] = Math.round( Math.random()*10 );
+    P1=P2;
+    cpt++;
+    if(cpt%10 == 0){
+      console.log('boucle: '+cpt);
+      var sum = P2.reduce(add, 0);
+      console.log('somme =: '+sum);
+      console.log('diff = '+diff);
+    }
   }
+  return P2;
 }
+
 
 function vecteur_transpose(v) {
   var n = l_array.length-1, m = c_array.length, dimV = v.length;
@@ -245,49 +286,17 @@ function vecteur_transpose_ligne_null(v){
   return P
 }
 
-function pagerangzero(V){
 
-/*  var vec_P = [];
-  cpt =0;
-  for (var i = 0; i < matrice.length; i++) {
-    var ligne = matrice[i];
-    for (var j = 0; j < ligne.length; j++) {
-      if (ligne[j] == 0) {
-        vec_P[cpt] = 1;
-      }else{
-        vec_P[cpt] = 0;
-      }
-      cpt++;
-    }
-  }
-  for (var x in M) {
-    if (x == 0) {
-      vec_P[cpt] = 1;
-    }else{
-      vec_P[cpt] = 0;
-    }
-    cpt++;
-  }
-
-  var d = eps;
-  while(d>=eps){
-    vec_Pk = transpose_matrice(vec_P);
-    d= dist_manhattan(vec_P, vec_Pk);
-    vec_P = vec_Pk;
-  }
-  return vec_P;*/
-}
-
-var matriceT = new Array();
-matriceT[0] = new Array(14,9,30,5);
-matriceT[1] = new Array(6,10,4,-2);
-matriceT[2] = new Array(6,6,-9,1);
-matriceT[3] = new Array(3,9,-7,0);
-
-affichage(transpose_matrice(matriceT));
-
-calcul_cli(matriceT);
+calcul_cli(matrice);
 affichage_array();
 console.log("-------------------");
-var tp = produit_vecteur_matrice(v);
+//var tp = produit_vecteur_matrice(v);
+var tp = pagerank_eps(c_array, l_array, i_array, [1,1,1,1], 0.0001);
+var tp2 = pagerank_zap_steps(c_array, l_array, i_array, [1,1,1,1], 0.0001, 1000);
+var tp3 = pagerank_zap_eps(c_array, l_array, i_array, [1,1,1,1], 0.2, 0.0001);
+console.log("-----test agerank epsilon-----");
 console.log(tp);
+console.log("-----test pagerank zap steps-----");
+console.log(tp2);
+console.log("-----test pagerank zap epsilon-----");
+console.log(tp3);
