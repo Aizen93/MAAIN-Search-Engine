@@ -6,6 +6,8 @@ var Node = require('./Node.js');
 var fs = require('fs');
 var readline = require('readline');
 var stream = require('stream');
+var accents = require('remove-accents');
+var natural = require('natural');
 // Démarrage du serveur
 serv.use(bodyParser.urlencoded({ extended: true }));
 serv.use(express.static(__dirname + '/public'));
@@ -79,28 +81,33 @@ function collectorLauncherStream(search){
     let mot;
     let res = [];
     let finished = false;
+    let c = 0;
     rl.on('line', function(line) {
       if(count <= 3500 && !finished){
         if(line.includes("</mot>")){
             let indexOfFirst = line.indexOf('">')+2;
             let indexOfLast = line.indexOf('</mot>') - indexOfFirst;
             let m = line.substr(indexOfFirst, indexOfLast);
-            if(m == search){
+            if(search.includes(m)){
+              search.filter(word => word != m);
               mot = m;
+              c += 600;
             }
             count++;
         }
         else if(line.includes("<titre>")){
           if(mot != undefined){
-            if(res.length < 600){
+            if(res.length < c){
               let indexOfFirst = line.indexOf('<titre>')+7;
               let indexOfLast = line.indexOf('</titre>') - indexOfFirst;
               let titre = line.substr(indexOfFirst, indexOfLast);
               res.push(titre);
             }else{
-              instream.close();
-              finished = true;
-              successCallback(res);
+              if(search.length == 0){
+                instream.close();
+                finished = true;
+                successCallback(res);
+              }
             }
           }
         }
@@ -266,6 +273,30 @@ serv.get("/", function (req, res) {
     res.render("pages/index", {history: search_word, data:links.length, list: links, current: 0, pages: 0});
 });
 
+function lower_noaccent(word) {
+  return accents.remove(word.toString().toLocaleLowerCase());
+}
+
+function cleanSearchWord(word){
+  if(word.length > 3 && word.length <= 60){
+      let item = lower_noaccent(word);
+      
+      var tokenizer = new natural.AggressiveTokenizerFr();
+      var tab = tokenizer.tokenize(item);
+      const regex = /[&,/<>{}=@0-9*+()-_|\n]/g;
+      for(var i = 0; i <tab.length; i++) {
+          if(tab[i].length < 3 || tab[i].match(regex)){
+              const index = tab.indexOf(tab[i]);
+              if (index > -1) {
+                  tab.splice(index, 1);
+                  i -= 1;
+              }
+          }
+      }
+      return tab;
+  }
+}
+
 function sortHistory(mot){
   const index = search_word.indexOf(mot);
   if (index > -1) {
@@ -274,25 +305,51 @@ function sortHistory(mot){
   search_word.push(mot);
 }
 
+function processSearch(req){
+  return new Promise((successCallback2, failureCallback) => {
+    if(!search_word.includes(req.body.search)) search_word.push(String(req.body.search));
+    else sortHistory(req.body.search);
+
+    var mot_compose = cleanSearchWord(search_word[search_word.length-1]);
+    mot_compose.forEach(element => {
+      let tmp = collector.get(element);
+      if(tmp != undefined){
+        links = links.concat(tmp);
+        mot_compose = mot_compose.filter(word => word != element);
+      }
+    });
+
+    if(mot_compose.length != 0){
+      const promise = collectorLauncherStream(mot_compose);
+      promise.then(function successCallback(resultat){
+          if(resultat != undefined){
+            console.log("res = "+resultat);
+            links = links.concat(resultat);
+            links = links.filter((a, b) => links.indexOf(a) === b);
+            successCallback2(links);
+          }
+        }
+      );
+    }else{
+      links = links.filter((a, b) => links.indexOf(a) === b);
+      successCallback2(links);
+    }
+  });
+}
+
 serv.post("/", function (req, res) {
-  if(!search_word.includes(req.body.search)) search_word.push(String(req.body.search));
-  else sortHistory(req.body.search);
   var perPage = 10;
   var page = req.params.page || 1;
-  links = collector.get(search_word[search_word.length-1]);
-  if(links == undefined){
-    const promise = collectorLauncherStream(req.body.search);
-    promise.then(function successCallback(resultat){
-        links = resultat;
-        if(links == undefined) links = [];
-        let resu = links.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
-        res.render("pages/index", {history: search_word, data:links.length, list: resu, current: page, pages: Math.ceil(links.length / perPage)});
+  links = [];
+  const promise = processSearch(req);
+    promise.then(function successCallback2(resultat){
+      console.log("RESULTAT OBTENU");
+      if(links == undefined) links = [];
+      let resu = links.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
+      res.render("pages/index", {history: search_word, data:links.length, list: resu, current: page, pages: Math.ceil(links.length / perPage)});
       }
     );
-  }else{
-    let resu = links.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
-    res.render("pages/index", {history: search_word, data:links.length, list: resu, current: page, pages: Math.ceil(links.length / perPage)});
-  }
+  
 });
 
 //-------------------------------------------------------------------//
