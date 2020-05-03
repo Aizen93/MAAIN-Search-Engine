@@ -14,6 +14,7 @@ serv.use(express.static(__dirname + '/public'));
 serv.set('view engine', 'ejs');
 serv.listen(8080, function() {
   console.log("Server started");
+  console.log("Please wait for the component to be loaded...");
 });
 
 //-------------------------------------------------------------------//
@@ -22,6 +23,7 @@ serv.listen(8080, function() {
 
 var collector = new Map();
 var search_word = [];
+var pagerank_array = [];
 
 function collectorLauncherMemory(){
   var instream = fs.createReadStream('./collector.xml');
@@ -50,7 +52,7 @@ function collectorLauncherMemory(){
       }
       else if(line.includes("<titre>")){
         if(count > 3500){
-          if(collector.get(mot).length < 500){
+          if(collector.get(mot).length < 200){
             let indexOfFirst = line.indexOf('<titre>')+7;
             let indexOfLast = line.indexOf('</titre>') - indexOfFirst;
             let titre = line.substr(indexOfFirst, indexOfLast);
@@ -61,7 +63,13 @@ function collectorLauncherMemory(){
   });
 
   instream.on('end', function(){
-      console.log("total mot : " + collector.size);
+    console.log("collector loaded successfully...");
+      var z = new Array();
+      for (var i = 0; i < graph_array.length; i++) z.push(1);
+      var pagerank = require('./pagerank.js');
+      pagerank_array = pagerank.pagerank_zap_eps(c_array, l_array, i_array, z, 0.1, 10);
+      console.log("PageRank calculated successfully");
+      console.log("All component are ready !!!");
     });
 }
 
@@ -121,7 +129,6 @@ function collectorLauncherStream(search){
     });
   });
 }
-collectorLauncherMemory();
 
 //-------------------------------------------------------------------//
 //---------------------- END CODE COLLECTOR -------------------------//
@@ -186,9 +193,10 @@ function graph() {
     }
   });
   instream.on('end', function(){
-    console.log("Graph created succefully !!!");
+    console.log("Graph loaded successfully...");
     calcul_cli();
-    affichage_array();
+    console.log("CLI calculated successfully...");
+    collectorLauncherMemory();
   });
 }
 
@@ -280,7 +288,7 @@ function lower_noaccent(word) {
 function cleanSearchWord(word){
   if(word.length > 3 && word.length <= 60){
       let item = lower_noaccent(word);
-      
+
       var tokenizer = new natural.AggressiveTokenizerFr();
       var tab = tokenizer.tokenize(item);
       const regex = /[&,/<>{}=@0-9*+()-_|\n]/g;
@@ -323,7 +331,6 @@ function processSearch(req){
       const promise = collectorLauncherStream(mot_compose);
       promise.then(function successCallback(resultat){
           if(resultat != undefined){
-            console.log("res = "+resultat);
             links = links.concat(resultat);
             links = links.filter((a, b) => links.indexOf(a) === b);
             successCallback2(links);
@@ -343,13 +350,23 @@ serv.post("/", function (req, res) {
   links = [];
   const promise = processSearch(req);
     promise.then(function successCallback2(resultat){
-      console.log("RESULTAT OBTENU");
       if(links == undefined) links = [];
+      else{
+        pagerank_array.sort((n1,n2) => {
+          	var indice1 = pagerank_array.indexOf(n1);
+            var indice2 = pagerank_array.indexOf(n2);
+          	if(n1 < n2 && links[indice1]!=undefined && links[indice2]!=undefined) {
+            	var tmp =  links[indice1];
+              links[indice1] = links[indice2];
+              links[indice2] = tmp;
+            }
+        });
+      }
       let resu = links.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
       res.render("pages/index", {history: search_word, data:links.length, list: resu, current: page, pages: Math.ceil(links.length / perPage)});
       }
     );
-  
+
 });
 
 //-------------------------------------------------------------------//
