@@ -100,24 +100,6 @@ function transpose_matrice(matrice){
   return result;
 }
 
-/*function pagerank_steps(matrice, sommet, nb_pas){
-  var vec_P = [];
-  cpt =0;
-  for (var x in M) {
-    if (x == sommet) {
-      vec_P[cpt] = 1;
-    }else{
-      vec_P[cpt] = 0;
-    }
-    cpt++;
-  }
-
-  for(var i= 0; i<nb_pas; i++){
-    vec_P = transpose_matrice(P);
-    console.log('Probabilité = '+vec_P.toString());
-  }
-}*/
-
 //New version
 function empty_mat(n){
   var res = []
