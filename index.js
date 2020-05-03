@@ -21,8 +21,7 @@ serv.listen(8080, function() {
 var collector = new Map();
 var search_word = [];
 
-function collectorLauncher(){
-
+function collectorLauncherMemory(){
   var instream = fs.createReadStream('./collector.xml');
   var outstream = new stream;
   outstream.readable = true;
@@ -61,10 +60,61 @@ function collectorLauncher(){
 
   instream.on('end', function(){
       console.log("total mot : " + collector.size);
-      //console.log("-------"+collector.get("quot"));
     });
 }
-collectorLauncher();
+
+function collectorLauncherStream(search){
+  return new Promise((successCallback, failureCallback) => {
+    var instream = fs.createReadStream('./collector.xml');
+    var outstream = new stream;
+    outstream.readable = true;
+    outstream.writable = true;
+    var count = 0;
+    var rl = readline.createInterface({
+        input: instream,
+        output: outstream,
+        terminal: false
+    });
+
+    let mot;
+    let res = [];
+    let finished = false;
+    rl.on('line', function(line) {
+      if(count <= 3500 && !finished){
+        if(line.includes("</mot>")){
+            let indexOfFirst = line.indexOf('">')+2;
+            let indexOfLast = line.indexOf('</mot>') - indexOfFirst;
+            let m = line.substr(indexOfFirst, indexOfLast);
+            if(m == search){
+              mot = m;
+            }
+            count++;
+        }
+        else if(line.includes("<titre>")){
+          if(mot != undefined){
+            if(res.length < 600){
+              let indexOfFirst = line.indexOf('<titre>')+7;
+              let indexOfLast = line.indexOf('</titre>') - indexOfFirst;
+              let titre = line.substr(indexOfFirst, indexOfLast);
+              res.push(titre);
+            }else{
+              instream.close();
+              finished = true;
+              successCallback(res);
+            }
+          }
+        }
+      }else{
+        if(!finished){
+          instream.close();
+          finished = true;
+          successCallback(res);
+        }
+      }
+    });
+  });
+}
+collectorLauncherMemory();
 
 //-------------------------------------------------------------------//
 //---------------------- END CODE COLLECTOR -------------------------//
@@ -108,27 +158,25 @@ function graph() {
   var indice = 0;
   var count = 0;
   rl.on('line', function(line) {
-    //if(count < 50000){
-      if(line.includes('<id>')) id = line.split('<id>')[1].split('</id>')[0];
-      else if(line.includes('<title>')) {
-        let indexOfFirst = line.indexOf('<title>')+7;
-        let indexOfLast = line.indexOf('</title>') - indexOfFirst;
-        if(boolean_link) {
-          node.add_link(line.substr(indexOfFirst, indexOfLast));
-        }else{
-          title = line.substr(indexOfFirst, indexOfLast);
-          node = new Node(id, title);
-          count++;
-        }
+    if(line.includes('<id>')) id = line.split('<id>')[1].split('</id>')[0];
+    else if(line.includes('<title>')) {
+      let indexOfFirst = line.indexOf('<title>')+7;
+      let indexOfLast = line.indexOf('</title>') - indexOfFirst;
+      if(boolean_link) {
+        node.add_link(line.substr(indexOfFirst, indexOfLast));
+      }else{
+        title = line.substr(indexOfFirst, indexOfLast);
+        node = new Node(id, title);
+        count++;
       }
-      else if(line.includes('<link>')) boolean_link = true;
-      else if(line.includes('</link>')){
-        graph_array.push(node);
-        indice_title.set(title, indice);
-        indice++;
-        boolean_link = false;
-      }
-    //}
+    }
+    else if(line.includes('<link>')) boolean_link = true;
+    else if(line.includes('</link>')){
+      graph_array.push(node);
+      indice_title.set(title, indice);
+      indice++;
+      boolean_link = false;
+    }
   });
   instream.on('end', function(){
     console.log("Graph created succefully !!!");
@@ -203,26 +251,22 @@ function affichage_array() {
 //------------------------ END CODE CLI -----------------------------//
 //-------------------------------------------------------------------//
 
+//-------------------------------------------------------------------//
+//---------------------- CODE WEB SERVICES --------------------------//
+//-------------------------------------------------------------------//
+var links = [];
 serv.get("/:page", function (req, res) {
   var perPage = 10;
   var page = req.params.page || 1;
-  let tab = collector.get(search_word[search_word.length-1]);
-  if(tab == undefined) tab = [];
-  let resu = tab.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
-  res.render("pages/index", {history: search_word, data:tab.length, list: resu, current: page, pages: Math.ceil(tab.length / perPage)});
+  let resu = links.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
+  res.render("pages/index", {history: search_word, data:links.length, list: resu, current: page, pages: Math.ceil(links.length / perPage)});
 });
 
 serv.get("/", function (req, res) {
-  //affichage_array();
-  var perPage = 10;
-  var page = req.params.page || 1;
-  let tab = collector.get(search_word[search_word.length-1]);
-  if(tab == undefined) tab = [];
-  let resu = tab.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
-  res.render("pages/index", {history: search_word, data:tab.length, list: resu, current: page, pages: Math.ceil(tab.length / perPage)});
+    res.render("pages/index", {history: search_word, data:links.length, list: links, current: 0, pages: 0});
 });
 
-function sorthistory(mot){
+function sortHistory(mot){
   const index = search_word.indexOf(mot);
   if (index > -1) {
     search_word.splice(index, 1);
@@ -232,11 +276,25 @@ function sorthistory(mot){
 
 serv.post("/", function (req, res) {
   if(!search_word.includes(req.body.search)) search_word.push(String(req.body.search));
-  else sorthistory(req.body.search);
+  else sortHistory(req.body.search);
   var perPage = 10;
   var page = req.params.page || 1;
-  let tab = collector.get(search_word[search_word.length-1]);
-  if(tab == undefined) tab = [];
-  let resu = tab.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
-  res.render("pages/index", {history: search_word, data:tab.length, list: resu, current: page, pages: Math.ceil(tab.length / perPage)});
+  links = collector.get(search_word[search_word.length-1]);
+  if(links == undefined){
+    const promise = collectorLauncherStream(req.body.search);
+    promise.then(function successCallback(resultat){
+        links = resultat;
+        if(links == undefined) links = [];
+        let resu = links.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
+        res.render("pages/index", {history: search_word, data:links.length, list: resu, current: page, pages: Math.ceil(links.length / perPage)});
+      }
+    );
+  }else{
+    let resu = links.slice((perPage * page) - perPage, ((perPage * page) - perPage) + 10);
+    res.render("pages/index", {history: search_word, data:links.length, list: resu, current: page, pages: Math.ceil(links.length / perPage)});
+  }
 });
+
+//-------------------------------------------------------------------//
+//--------------------- END CODE WEB SERVICES -----------------------//
+//-------------------------------------------------------------------//

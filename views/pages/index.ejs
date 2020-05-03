@@ -5,6 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/modernizr.js"></script>
@@ -30,8 +31,18 @@
 	<main class="cd-main-content">
 		<div class="content-center">
 			<% if (data != 0) { %>
-				<h1 class="message-search">Total pages trouvé : <%= data %></h1>
-				<h1>Resultat trouvé pour : <%= history[history.length - 1] %></h1>
+				<section class="cd-intro">
+					<section class="cd-title">
+						<h1 >Total pages trouvé : <%= data %></h1>
+					</section>
+					<h1 class="cd-headline letters type">
+						<span>Resultat </span> 
+						<span class="cd-words-wrapper waiting">
+							<b class="is-visible">trouvé pour : <%= history[history.length - 1] %></b>
+							<b>trouvé pour : <%= history[history.length - 1] %></b>
+						</span>
+					</h1>
+				</section> 
 			<% } else { %>
 				<h1 class="message-search">Rien trouver, faite une recherche dans la barre d'en haut !</h1>
 			<% } %>
@@ -161,6 +172,7 @@
 
 	<div class="cd-cover-layer"></div>
 
+	<script src="js/jquery-2.1.1.js"></script>
 	<script src="js/jquery-2.1.4.js"></script>
 	<script src="js/main.js"></script>
 </body>
