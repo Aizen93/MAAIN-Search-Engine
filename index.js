@@ -82,6 +82,11 @@ function collectorLauncherMemory(){
       var z = new Array();
       for (var i = 0; i < graph_array.length; i++) z.push(1);
       var pagerank = require('./pagerank.js');
+      /** 
+      * Les valeurs de zap et epsilon (0.1 et 10), ont ete choisi apres plusieurs essais. 
+      * Ces valeurs sont celles qui nous ont permis d'avoir un bon ratio entre
+      * temps d'execution correcte et une fiabilité de nos resultats de recherche.
+      */
       pagerank_array = pagerank.pagerank_zap_eps(c_array, l_array, i_array, z, 0.1, 10);
       console.log("PageRank calculated successfully");
       console.log("All components are ready !!!");
