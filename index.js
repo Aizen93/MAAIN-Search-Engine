@@ -14,7 +14,7 @@ serv.use(express.static(__dirname + '/public'));
 serv.set('view engine', 'ejs');
 serv.listen(8080, function() {
   console.log("Server started");
-  console.log("Please wait for the component to be loaded...");
+  console.log("Please wait for the components to be loaded...");
 });
 
 //-------------------------------------------------------------------//
@@ -30,7 +30,7 @@ var pagerank_array = [];
   garde en mémoire les 6500 derniers mots (sur 10000 mots au total) enregistrés dans le fichier.
 */
 function collectorLauncherMemory(){
-  var instream = fs.createReadStream('./collector.xml');
+  var instream = fs.createReadStream('./public/data/collector.xml');
   var outstream = new stream;
   outstream.readable = true;
   outstream.writable = true;
@@ -51,6 +51,8 @@ function collectorLauncherMemory(){
 
           collector.set(m, new Array());
           mot = m;
+          if(count >= 9980) console.log("- " + m);
+          if(count == 5000) console.log("- " + m);
         }
         count++;
       }
@@ -73,7 +75,7 @@ function collectorLauncherMemory(){
       var pagerank = require('./pagerank.js');
       pagerank_array = pagerank.pagerank_zap_eps(c_array, l_array, i_array, z, 0.1, 10);
       console.log("PageRank calculated successfully");
-      console.log("All component are ready !!!");
+      console.log("All components are ready !!!");
     });
 }
 
@@ -83,8 +85,8 @@ function collectorLauncherMemory(){
   si les elements dans search en font partie
 */
 function collectorLauncherStream(search){
-  return new Promise((successCallback, failureCallback) => {
-    var instream = fs.createReadStream('./collector.xml');
+  return new Promise((successCallback) => {
+    var instream = fs.createReadStream('./public/data/collector.xml');
     var outstream = new stream;
     outstream.readable = true;
     outstream.writable = true;
@@ -158,7 +160,7 @@ graph();
   Parse graph.xml et crée le graphe en mémoire
 */
 function graph() {
-  var instream = fs.createReadStream('./graph.xml');
+  var instream = fs.createReadStream('./public/data/graph.xml');
   var outstream = new stream;
   outstream.readable = true;
   outstream.writable = true;
@@ -230,7 +232,6 @@ function calcul_cli() {
   }
 }
 
-
 //-------------------------------------------------------------------//
 //------------------------ END CODE CLI -----------------------------//
 //-------------------------------------------------------------------//
@@ -289,11 +290,12 @@ function sortHistory(mot){
   Recherche les mots dans le collector et retourne une liste de liens
 */
 function processSearch(req){
-  return new Promise((successCallback2, failureCallback) => {
+  return new Promise((successCallback2) => {
     if(!search_word.includes(req.body.search)) search_word.push(String(req.body.search));
     else sortHistory(req.body.search);
 
     var mot_compose = cleanSearchWord(search_word[search_word.length-1]);
+    if(mot_compose == undefined) mot_compose = [];
     mot_compose.forEach(element => {
       let tmp = collector.get(element);
       if(tmp != undefined){

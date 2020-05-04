@@ -21,7 +21,7 @@ var NBRPAGES = 450000;
   * Fonction permettant de récupérer les occurences mot-page
   */
 function dictionary(){
-  var fileStream = fs.createReadStream("./corpus.xml");
+  var fileStream = fs.createReadStream("./public/data/corpus.xml");
   var streamer = new saxPath.SaXPath(saxParser, '//page');
   var tokenizer = new natural.AggressiveTokenizerFr();
   var finish = false;
@@ -50,7 +50,7 @@ function dictionary(){
               if(mot_page.get(item) != null){
                 words_occurence.set(item, words_occurence.get(item) + 1);
                 let tmp = mot_page.get(item);
-                if(tmp.length < 1500 && !tmp.includes(title) && ((i - tab.indexOf(word)) >= 4){
+                if(tmp.length < 1500 && !tmp.includes(title) && ((i - tab.indexOf(word)) >= 4)){
                   tmp.push(title);
                   mot_page.set(item, tmp);
                 }
@@ -132,7 +132,7 @@ function lower_noaccent(word) {
  */
 function generateCollector(){
   console.log("generating collector ....");
-  var collector_stream = fs.createWriteStream("./collector.xml", {flags:'a'});
+  var collector_stream = fs.createWriteStream("./public/data/collector.xml", {flags:'a'});
   collector_stream.write('<collector version="0.10" xml:lang="fr">\n');
 
   dictionary_array.forEach((item) => {

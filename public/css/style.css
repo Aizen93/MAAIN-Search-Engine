@@ -966,6 +966,9 @@ JavaScript Disabled
   color: #3498DB;
   font-weight: bold;
 }
+.list-content a{
+  width: 80%;
+}
 .list-content a li {
   text-align: left;
   background: white;
@@ -974,7 +977,6 @@ JavaScript Disabled
   box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0.7);
   margin: 1em 0;
   font-family: 'Lato', Helvetica, sans-serif;
-  width: 80%;
 }
 
 .footer {

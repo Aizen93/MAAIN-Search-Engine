@@ -15,7 +15,7 @@ var count = 1;
 */
 function parser(corpus_stream) {
   var streamer = new saxPath.SaXPath(saxParser, '//page');
-  var fileStream = fs.createReadStream("./corpus.xml");
+  var fileStream = fs.createReadStream("./public/data/corpus.xml");
   streamer.on('match', function(xml) {
     console.log(count);
     count++;
@@ -74,7 +74,7 @@ function parser(corpus_stream) {
   fonction qui appelle le parser
 */
 function graph(){
-  var corpus_stream = fs.createWriteStream('./graph.xml');
+  var corpus_stream = fs.createWriteStream('./public/data/graph.xml');
   corpus_stream.write('<graph version="0.10" xml:lang="fr">\n\t');
   parser(corpus_stream);
 }

@@ -7,9 +7,9 @@ var saxPath = require('saxpath');
 //------------------ CORPUS GENERATION CODE -------------------------//
 //-------------------------------------------------------------------//
 
-var dataURL = './frwiki.xml';
+var dataURL = './public/data/frwiki.xml';
 //var dataURL = './public/data/frwiki-debut.xml';
-var corpusURL = "./corpus.xml";
+var corpusURL = "./public/data/corpus.xml";
 var NUMBER_OF_PAGE = 400000;
 var count = 0;
 var regexp = [/intelligence artificielle/i, /informati*/i, /nouvelle technologie/i, /robot/i];
