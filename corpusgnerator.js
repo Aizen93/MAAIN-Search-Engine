@@ -6,14 +6,26 @@ var saxPath = require('saxpath');
 //-------------------------------------------------------------------//
 //------------------ CORPUS GENERATION CODE -------------------------//
 //-------------------------------------------------------------------//
-
-var dataURL = './public/data/frwiki.xml';
-//var dataURL = './public/data/frwiki-debut.xml';
+var argv = process.argv.slice(2);
+if(argv.length != 1){
+  console.log("Erreur d'arguments, voici un exemple :");
+  console.log("- node corpusgenerator.js public/data/frwiki.xml");
+  process.exit();
+}
+var dataURL = argv[0];
 var corpusURL = "./public/data/corpus.xml";
 var NUMBER_OF_PAGE = 400000;
 var count = 0;
 var regexp = [/intelligence artificielle/i, /informati*/i, /nouvelle technologie/i, /robot/i];
 
+const cliProgress = require('cli-progress');
+// create new progress bar
+const b1 = new cliProgress.SingleBar({
+    format: 'Corpus en cours... |' + ('{bar}') + '| {percentage}% | {value}/{total} Pages parcourues | ETA: {eta}s',
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+    hideCursor: false
+  });
 /**
 entree : une liste de mots
 sortie : true si la liste contient au moins un des mots de regex, false sinon
@@ -41,17 +53,19 @@ function parseXML(bigfrwiki, corpusoutput) {
     var corpus_stream = fs.createWriteStream(corpusoutput, {flags:'a'});
     var streamer = new saxPath.SaXPath(saxParser, '//page');
     var finish = false;
-
+    b1.start(400000, 0);
     corpus_stream.write('<corpus version="0.10" xml:lang="fr">');
     streamer.on('match', function(xml) {
         if(count < NUMBER_OF_PAGE){
             if(xml.length < 800000 && filtrer(xml)){
                 corpus_stream.write("\n\t" + xml);
                 count++;
+                b1.update(count);
             }
         }else{
             if(!finish){
                 finish = true;
+                b1.stop();
                 fileStream.close();
                 corpus_stream.write('\n</corpus>');
                 console.log("Corpus created succefully !!");

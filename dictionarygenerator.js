@@ -5,13 +5,27 @@ var saxPath = require('saxpath');
 var natural = require('natural');
 var accents = require('remove-accents');
 
-
+var argv = process.argv.slice(2);
+if(argv.length != 1){
+  console.log("Erreur d'arguments, voici un exemple :");
+  console.log("- node --max-old-space-size=6096 dictionarygenerator.js public/data/corpus.xml");
+  process.exit();
+}
+var corpus_url = argv[0];
 var count = 0;
 var dictionary_array = new Array();
 var mot_page = new Map();
 var words_occurence = new  Map();
 var NBRPAGES = 450000;
 
+const cliProgress = require('cli-progress');
+// create new progress bar
+const b1 = new cliProgress.SingleBar({
+  format: 'Collector...|' + ('{bar}') + '| {percentage}% | {value}/{total} titre: {g} | ETA: {eta}s',
+  barCompleteChar: '\u2588',
+  barIncompleteChar: '\u2591',
+  hideCursor: false
+});
 
 //-------------------------------------------------------------------//
 //---------------- CODE DICTIONNAIRE & CCOLLECTOR -------------------//
@@ -21,10 +35,11 @@ var NBRPAGES = 450000;
   * Fonction permettant de récupérer les occurences mot-page
   */
 function dictionary(){
-  var fileStream = fs.createReadStream("./public/data/corpus.xml");
+  var fileStream = fs.createReadStream(corpus_url);
   var streamer = new saxPath.SaXPath(saxParser, '//page');
   var tokenizer = new natural.AggressiveTokenizerFr();
   var finish = false;
+  b1.start(400000, 0);
 
   streamer.on('match', function(xml) {
     if(count < NBRPAGES){
@@ -32,8 +47,8 @@ function dictionary(){
         let indexOfLast = xml.indexOf('</title>') - indexOfFirst;
         let title = xml.substr(indexOfFirst, indexOfLast);
 
-        console.log("page :"+count+" titre : "+title+"\n______________________________________\n");
-        console.log(mot_page.size);
+        //console.log("page :"+count+" titre : "+title+"\n______________________________________\n");
+        //console.log(mot_page.size);
 
         indexOfFirst = xml.indexOf('<text xml:space="preserve">')+27;
         indexOfLast = xml.indexOf('</text>') - indexOfFirst;
@@ -65,6 +80,7 @@ function dictionary(){
           }
         });
         count++;
+        b1.update(count, {g : title});
     }else{
       if(!finish) {
         console.log("total words before sort :"+words_occurence.size)
@@ -84,6 +100,7 @@ function dictionary(){
         console.log("streamer Total mots : " + dictionary_array.length);
         finish = true;
         fileStream.close();
+        b1.stop();
         generateCollector();
       }
     }
@@ -103,6 +120,7 @@ function dictionary(){
     const iterator = mapSort.keys();
     for (var i = 0; i < 10000; i++) dictionary_array.push(iterator.next().value);
 
+    b1.stop();
     console.log("Dictionary created succefully !!!");
     console.log(dictionary_array);
     generateCollector();
@@ -131,7 +149,7 @@ function lower_noaccent(word) {
  * on ne prend que les 10k mot les plus fréquents dans le corpus
  */
 function generateCollector(){
-  console.log("generating collector ....");
+  console.log("generating collector .... Please wait, this will take ~10 seconds...");
   var collector_stream = fs.createWriteStream("./public/data/collector.xml", {flags:'a'});
   collector_stream.write('<collector version="0.10" xml:lang="fr">\n');
 

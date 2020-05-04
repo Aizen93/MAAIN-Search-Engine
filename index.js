@@ -8,6 +8,17 @@ var readline = require('readline');
 var stream = require('stream');
 var accents = require('remove-accents');
 var natural = require('natural');
+
+//Test arguments
+var argv = process.argv.slice(2);
+if(argv.length != 2){
+  console.log("Erreur d'arguments, voici un exemple :");
+  console.log("- node index.js public/data/graph.xml public/data/collector.xml");
+  process.exit();
+}
+var graph_url = argv[0];
+var collector_url = argv[1];
+
 // Démarrage du serveur
 serv.use(bodyParser.urlencoded({ extended: true }));
 serv.use(express.static(__dirname + '/public'));
@@ -30,7 +41,7 @@ var pagerank_array = [];
   garde en mémoire les 6500 derniers mots (sur 10000 mots au total) enregistrés dans le fichier.
 */
 function collectorLauncherMemory(){
-  var instream = fs.createReadStream('./public/data/collector.xml');
+  var instream = fs.createReadStream(collector_url);
   var outstream = new stream;
   outstream.readable = true;
   outstream.writable = true;
@@ -71,6 +82,11 @@ function collectorLauncherMemory(){
       var z = new Array();
       for (var i = 0; i < graph_array.length; i++) z.push(1);
       var pagerank = require('./pagerank.js');
+      /** 
+      * Les valeurs de zap et epsilon (0.1 et 10), ont ete choisi apres plusieurs essais. 
+      * Ces valeurs sont celles qui nous ont permis d'avoir un bon ratio entre
+      * temps d'execution correcte et une fiabilité de nos resultats de recherche.
+      */
       pagerank_array = pagerank.pagerank_zap_eps(c_array, l_array, i_array, z, 0.1, 10);
       console.log("PageRank calculated successfully");
       console.log("All components are ready !!!");
@@ -84,7 +100,7 @@ function collectorLauncherMemory(){
 */
 function collectorLauncherStream(search){
   return new Promise((successCallback) => {
-    var instream = fs.createReadStream('./public/data/collector.xml');
+    var instream = fs.createReadStream(collector_url);
     var outstream = new stream;
     outstream.readable = true;
     outstream.writable = true;
@@ -158,7 +174,7 @@ graph();
   Parse graph.xml et crée le graphe en mémoire
 */
 function graph() {
-  var instream = fs.createReadStream('./public/data/graph.xml');
+  var instream = fs.createReadStream(graph_url);
   var outstream = new stream;
   outstream.readable = true;
   outstream.writable = true;

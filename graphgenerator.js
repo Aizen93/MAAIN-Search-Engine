@@ -6,18 +6,38 @@ var saxPath = require('saxpath');
 //-------------------------- CODE GRAPH -----------------------------//
 //-------------------------------------------------------------------//
 
-var string = "";
-var count = 1;
+var argv = process.argv.slice(2);
+if(argv.length != 1){
+  console.log("Erreur d'arguments, voici un exemple :");
+  console.log("- node graphgenerator.js public/data/corpus.xml");
+  process.exit();
+}
+var corpus_url = argv[0];
+var count = 0;
+
+const cliProgress = require('cli-progress');
+// create new progress bar
+const b1 = new cliProgress.SingleBar({
+  format: 'Graph en cours... |' + ('{bar}') + '| {percentage}% | {value}/{total} Pages totales | ETA: {eta}s',
+  barCompleteChar: '\u2588',
+  barIncompleteChar: '\u2591',
+  hideCursor: false
+});
 
 /**
   entree : corpus_stream le chemin un writestream de corpus.xml
   sortie : true si la liste contient au moins un des mots de regex, false sinon
 */
-function parser(corpus_stream) {
+function parser() {
+  var fileStream = fs.createReadStream(corpus_url);
+  var corpus_stream = fs.createWriteStream('./public/data/graph.xml', {flags:'a'});
   var streamer = new saxPath.SaXPath(saxParser, '//page');
-  var fileStream = fs.createReadStream("./public/data/corpus.xml");
+
+  // initialize the loading bar
+  b1.start(400000, 0);
+  corpus_stream.write('<graph version="0.10" xml:lang="fr">\n\t');
+
   streamer.on('match', function(xml) {
-    console.log(count);
     count++;
     corpus_stream.write("<page>\n\t");
     var string = xml
@@ -57,14 +77,19 @@ function parser(corpus_stream) {
     }
     corpus_stream.write("   </link>\n\t");
     corpus_stream.write("</page>\n\t");
+    b1.update(count);
+    if(count == 400000){
+      corpus_stream.write('\n</graph>');
+      fileStream.close();
+      b1.stop();
+      console.log("Graph created successfully !!");
+    };
   });
   fileStream.on('error', function(){
     console.log("Error parsing file !!!");
   });
 
   fileStream.on('end', function(){
-    fileStream.close();
-    corpus_stream.write('\n</graph>');
     console.log("Graph created successfully !!!");
   });
   fileStream.pipe(saxParser);
@@ -74,9 +99,7 @@ function parser(corpus_stream) {
   fonction qui appelle le parser
 */
 function graph(){
-  var corpus_stream = fs.createWriteStream('./public/data/graph.xml');
-  corpus_stream.write('<graph version="0.10" xml:lang="fr">\n\t');
-  parser(corpus_stream);
+  parser();
 }
 
 graph();
