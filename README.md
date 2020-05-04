@@ -21,11 +21,11 @@
 
 - Si vous souhaitez tester la génération de fichier dont on a besoin, vous pouvez utiliser les commandes suivantes dans ce même ordre:
 
-  `node corpusgenerator.js <frwiki filename>`
+  `node corpusgenerator.js <frwiki filepath>`
 
-  `node graphgenerator.js <corpus filename>`
+  `node graphgenerator.js <corpus filepath>`
 
-  `node --max-old-space-size=6096 dictionarygenerator.js <corpus filename>`
+  `node --max-old-space-size=6096 dictionarygenerator.js <corpus filepath>`
 
 - Sinon, si vous souhaitez accéder à distances, aux trois fichiers XML déjà préparés, voici le lien vers une machine de l'UFR afin de les recuperer :
   - `/info/nouveaux/aouessar/Desktop/maain/corpus.xml`
@@ -38,7 +38,7 @@
 
 - Vous pouvez maintenant lancer le serveur via la commande suivante:
 
-  ​	`node index.js`
+  ​	`node index.js <graph filepath> <collector filepath>`
 
 #### 4. Ouvrir un navigateur sur l'adresse locale
 
