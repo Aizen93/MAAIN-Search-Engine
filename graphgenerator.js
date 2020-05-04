@@ -15,6 +15,10 @@ if(argv.length != 1){
 var corpus_url = argv[0];
 var count = 0;
 
+const cliProgress = require('cli-progress');
+// create new progress bar
+const b1 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+
 /**
   entree : corpus_stream le chemin un writestream de corpus.xml
   sortie : true si la liste contient au moins un des mots de regex, false sinon
@@ -23,7 +27,9 @@ function parser() {
   var fileStream = fs.createReadStream(corpus_url);
   var corpus_stream = fs.createWriteStream('./public/data/graph.xml', {flags:'a'});
   var streamer = new saxPath.SaXPath(saxParser, '//page');
-  
+
+  // initialize the loading bar
+  b1.start(400000, 0);
   corpus_stream.write('<graph version="0.10" xml:lang="fr">\n\t');
 
   streamer.on('match', function(xml) {
@@ -66,9 +72,11 @@ function parser() {
     }
     corpus_stream.write("   </link>\n\t");
     corpus_stream.write("</page>\n\t");
+    b1.update(count);
     if(count == 400000){
       corpus_stream.write('\n</graph>');
       fileStream.close();
+      b1.stop();
       console.log("Graph created successfully !!");
     };
   });
