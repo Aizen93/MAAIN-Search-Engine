@@ -5,20 +5,20 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/modernizr.js"></script>
-  	
+
 	<title>MAAIN</title>
 </head>
 <body>
 	<header class="cd-main-header animate-search">
-		<div class="cd-logo"><a href="#0"><img src="img/MAAIN.png" alt="Logo"></a></div>
+		<div class="cd-logo"><a href="#0"><img src="img/logo.png" alt="Logo"></a></div>
 
 		<nav class="cd-main-nav-wrapper">
 			<a href="#search" class="cd-search-trigger cd-text-replace">Search</a>
-			
+
 			<ul class="cd-main-nav">
 				<li><a href="https://www.wikipedia.org">Wikipedia</a></li>
 				<li><a href="#0">Brainiac</a></li>
@@ -27,17 +27,90 @@
 
 		<a href="#0" class="cd-nav-trigger cd-text-replace">Menu<span></span></a>
 	</header>
-	
+
 	<main class="cd-main-content">
 		<div class="content-center">
-            <h1>Resultat de la recherche ici</h1>
-            <h1>Simple et efficace</h1>
-            <h1>le front de cette partie sera fait plus tard !</h1>
+			<% if (data != 0) { %>
+				<section class="cd-intro">
+					<section class="cd-title">
+						<h1 >Total pages trouvé : <%= data %></h1>
+					</section>
+					<h1 class="cd-headline letters type">
+						<span>Resultat </span> 
+						<span class="cd-words-wrapper waiting">
+							<b class="is-visible">trouvé pour : <%= history[history.length - 1] %></b>
+							<b>trouvé pour : <%= history[history.length - 1] %></b>
+						</span>
+					</h1>
+				</section> 
+			<% } else { %>
+				<h1 class="message-search">Rien trouver, faite une recherche dans la barre d'en haut !</h1>
+			<% } %>
+			<center>
+				<ul class="list-content">
+				<% if (list!=null) { %>
+					<% for (var attr = 0; attr < list.length; attr++) { %>
+						<% if (list[attr].includes("&apos;")) { %>
+							<% list[attr] = list[attr].replace("&apos;","'") %>
+						<%}%>
+						<%var lien ='https://fr.wikipedia.org/wiki/'%>
+						<%var tab = list[attr].split(" ")%>
+						<% if (tab.length > 1) { %>
+							<%for (var i = 0; i < (tab.length-1); i++) { %>
+								<%lien+=tab[i]+'_'%>
+							<%}%>
+							<%lien+=tab[tab.length-1]%>
+						<%}else{%>
+							<%lien+=list[attr]%>
+							<%}%>
+					<a href= <%= lien %>>
+						<li>
+							<p><%= lien %></p>
+							<br>
+							<p class="title"><%= list[attr] %></p>
+						</li>
+					</a>
+					<% } %>
+				<% } %>
+				</ul>
+			</center>
+
+			<section>
+				<nav role="navigation">
+				<% if (pages > 0) { %>
+					<ul class="cd-pagination move-buttons custom-icons">
+						<% if (current == 1) { %>
+							<li class="button"><a class="current">First</a></li>
+						<% } else { %>
+							<li class="button"><a href="/1">First</a></li>
+						<% } %>
+						<% var i = (Number(current) > 10 ? Number(current) - 3 : 1) %>
+						<% if (i !== 1) { %>
+							<li><span>...</span></li>
+						<% } %>
+						<% for (; i <= (Number(current) + 3) && i <= pages; i++) { %>
+							<% if (i == current) { %>
+								<li><a class="current"><%= i %></a></li>
+							<% } else { %>
+								<li><a href="/<%= i %>"><%= i %></a></li>
+							<% } %>
+							<% if (i == Number(current) + 3 && i < pages) { %>
+								<li><span>...</span></li>
+							<% } %>
+						<% } %>
+						<% if (current == pages) { %>
+							<li class="button"><a class="current">Last</a></li>
+						<% } else { %>
+							<li class="button"><a href="/<%= pages %>">Last</a></li>
+						<% } %>
+					</ul>
+				<% } %>
+			</div>
 		</div>
 	</main>
 
 	<div id="search" class="cd-main-search">
-		<form action="/" method="post">
+		<form autocomplete="off" action="/" method="post">
 			<input type="search" name="search" id="search" placeholder="Search...">
 
 			<div class="cd-select">
@@ -54,23 +127,31 @@
 			<div class="news">
 				<h3>History</h3>
 				<ul>
-					<li>
-						<a class="image-wrapper"><img src="img/placeholder.png" alt="News image"></a>
-						<h4><a class="cd-nowrap" href="#0">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</a></h4>
-						<time datetime="2016-01-12">Feb 03, 2016</time>
-					</li>
-
-					<li>
-						<a class="image-wrapper"><img src="img/placeholder.png" alt="News image"></a>
-						<h4><a class="cd-nowrap" href="#0">Incidunt voluptatem adipisci voluptates fugit beatae culpa eum, distinctio, assumenda est ad</a></h4>
-						<time datetime="2016-01-12">Jan 28, 2016</time>
-					</li>
-
-					<li>
-						<a class="image-wrapper"><img src="img/placeholder.png" alt="News image"></a>
-						<h4><a class="cd-nowrap" href="#0">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iusto, esse.</a></h4>
-						<time datetime="2016-01-12">Jan 12, 2016</time>
-					</li>
+					<% if(history.length > 0) { %>
+						<% for(var i = 0; i < history.length && i < 4; i++) { %>
+							<li>
+								<a class="image-wrapper"><img src="img/placeholder.png" alt="News image"></a>
+								<h4><a class="cd-nowrap" href="#0"><%= history[history.length - 1 - i] %></a></h4>
+								<time><%= new Date() %></time>
+							</li>
+						<% } %>
+					<% } else {%>
+						<li>
+							<a class="image-wrapper"><img src="img/placeholder.png" alt="News image"></a>
+							<h4><a class="cd-nowrap" href="#0">Suggestion : Algorithme et Géographie</a></h4>
+							<time><%= new Date() %></time>
+						</li>
+						<li>
+							<a class="image-wrapper"><img src="img/placeholder.png" alt="News image"></a>
+							<h4><a class="cd-nowrap" href="#0">Suggestion : L'histoire de la France</a></h4>
+							<time><%= new Date() %></time>
+						</li>
+						<li>
+							<a class="image-wrapper"><img src="img/placeholder.png" alt="News image"></a>
+							<h4><a class="cd-nowrap" href="#0">Suggestion : Géométrie & coordonnée, longitude = 52</a></h4>
+							<time><%= new Date() %></time>
+						</li>
+					<% } %>
 				</ul>
 			</div>
 
@@ -90,7 +171,53 @@
 	</div>
 
 	<div class="cd-cover-layer"></div>
-<script src="js/jquery-2.1.4.js"></script>
-<script src="js/main.js"></script>
+
+	<script src="js/jquery-2.1.1.js"></script>
+	<script src="js/jquery-2.1.4.js"></script>
+	<script src="js/main.js"></script>
 </body>
+<div class="footer">
+	<div class="contain">
+		<div class="col">
+			<h1>Réalisé par :</h1>
+			<ul>
+				<li>Aouessar Oussama</li>
+				<li>Melila Lilya</li>
+				<li>Medjadi Ilyesse</li>
+			</ul>
+		</div>
+		<div class="col">
+			<h1>Enseignant :</h1>
+			<ul>
+				<li>Dominique Poulalhon - Irif</li>
+				<li>Pierluigi Crescenzi</li>
+			</ul>
+		</div>
+		<div class="col">
+			<h1>Technologie Utilisé :</h1>
+			<ul>
+				<li>Node Js v12.16.1 (Back)</li>
+				<li>Express (Front)</li>
+				<li>fs (lire fichiers)</li>
+				<li>saxPath (parsage fichiers XML)</li>
+				<li>Natural (Racine des mots)</li>
+			</ul>
+		</div>
+		<div class="col">
+			<h1>Université Paris Diderot</h1>
+			<ul>
+				<li>Master 2 IMPAIRS</li>
+				<li>2019-2020</li>
+				<li>MAAIN</li>
+			</ul>
+		</div>
+		<div class="col social">
+			<h1>Logo</h1>
+			<ul>
+				<li><a href="#0"><img src="img/logo.png" alt="Logo"></a></li>
+			</ul>
+		</div>
+  		<div class="clearfix"></div>
+	</div>
+</div>
 </html>
