@@ -8,6 +8,17 @@ var readline = require('readline');
 var stream = require('stream');
 var accents = require('remove-accents');
 var natural = require('natural');
+
+//Test arguments
+var argv = process.argv.slice(2);
+if(argv.length != 2){
+  console.log("Erreur d'arguments, voici un exemple :");
+  console.log("- node index.js public/data/graph.xml public/data/collector.xml");
+  process.exit();
+}
+var graph_url = argv[0];
+var collector_url = argv[1];
+
 // Démarrage du serveur
 serv.use(bodyParser.urlencoded({ extended: true }));
 serv.use(express.static(__dirname + '/public'));
@@ -30,7 +41,7 @@ var pagerank_array = [];
   garde en mémoire les 6500 derniers mots (sur 10000 mots au total) enregistrés dans le fichier.
 */
 function collectorLauncherMemory(){
-  var instream = fs.createReadStream('./public/data/collector.xml');
+  var instream = fs.createReadStream(collector_url);
   var outstream = new stream;
   outstream.readable = true;
   outstream.writable = true;
@@ -84,7 +95,7 @@ function collectorLauncherMemory(){
 */
 function collectorLauncherStream(search){
   return new Promise((successCallback) => {
-    var instream = fs.createReadStream('./public/data/collector.xml');
+    var instream = fs.createReadStream(collector_url);
     var outstream = new stream;
     outstream.readable = true;
     outstream.writable = true;
@@ -158,7 +169,7 @@ graph();
   Parse graph.xml et crée le graphe en mémoire
 */
 function graph() {
-  var instream = fs.createReadStream('./public/data/graph.xml');
+  var instream = fs.createReadStream(graph_url);
   var outstream = new stream;
   outstream.readable = true;
   outstream.writable = true;

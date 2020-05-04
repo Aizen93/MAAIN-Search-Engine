@@ -34,15 +34,13 @@
 
 #### 3. Lancement du serveur:
 
-- Avant de lancer le serveur, veillez à déplacer les fichiers XML (télécharger) dans le répertoire `/public/data/` du projet.
-
 - Vous pouvez maintenant lancer le serveur via la commande suivante:
 
   ​	`node index.js <graph filepath> <collector filepath>`
 
 #### 4. Ouvrir un navigateur sur l'adresse locale
 
-​	`localhost:8080`
+​	  `localhost:8080`
 
 #### 5. Faire une recherche:
 

@@ -6,9 +6,13 @@ var saxPath = require('saxpath');
 //-------------------------------------------------------------------//
 //------------------ CORPUS GENERATION CODE -------------------------//
 //-------------------------------------------------------------------//
-
-var dataURL = './public/data/frwiki.xml';
-//var dataURL = './public/data/frwiki-debut.xml';
+var argv = process.argv.slice(2);
+if(argv.length != 1){
+  console.log("Erreur d'arguments, voici un exemple :");
+  console.log("- node corpusgenerator.js public/data/frwiki.xml");
+  process.exit();
+}
+var dataURL = argv[0];
 var corpusURL = "./public/data/corpus.xml";
 var NUMBER_OF_PAGE = 400000;
 var count = 0;

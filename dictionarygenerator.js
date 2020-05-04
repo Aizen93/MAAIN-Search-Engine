@@ -5,7 +5,13 @@ var saxPath = require('saxpath');
 var natural = require('natural');
 var accents = require('remove-accents');
 
-
+var argv = process.argv.slice(2);
+if(argv.length != 1){
+  console.log("Erreur d'arguments, voici un exemple :");
+  console.log("- node --max-old-space-size=6096 dictionarygenerator.js public/data/corpus.xml");
+  process.exit();
+}
+var corpus_url = argv[0];
 var count = 0;
 var dictionary_array = new Array();
 var mot_page = new Map();
@@ -21,7 +27,7 @@ var NBRPAGES = 450000;
   * Fonction permettant de récupérer les occurences mot-page
   */
 function dictionary(){
-  var fileStream = fs.createReadStream("./public/data/corpus.xml");
+  var fileStream = fs.createReadStream(corpus_url);
   var streamer = new saxPath.SaXPath(saxParser, '//page');
   var tokenizer = new natural.AggressiveTokenizerFr();
   var finish = false;
