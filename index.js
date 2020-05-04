@@ -25,6 +25,10 @@ var collector = new Map();
 var search_word = [];
 var pagerank_array = [];
 
+/**
+  Parcours le fichier collector.xml
+  garde en mémoire les 6500 derniers mots (sur 10000 mots au total) enregistrés dans le fichier.
+*/
 function collectorLauncherMemory(){
   var instream = fs.createReadStream('./collector.xml');
   var outstream = new stream;
@@ -73,6 +77,11 @@ function collectorLauncherMemory(){
     });
 }
 
+/**
+  Parcours le fichier collector.xml
+  cherche sur les 3500 premiers mots (sur 10000 mots au total)
+  si les elements dans search en font partie
+*/
 function collectorLauncherStream(search){
   return new Promise((successCallback, failureCallback) => {
     var instream = fs.createReadStream('./collector.xml');
@@ -144,19 +153,10 @@ graph();
 //-------------------------------------------------------------------//
 //-------------------------- CODE GRAPH -----------------------------//
 //-------------------------------------------------------------------//
-function get_by_title(list, str) {
-  for (var i = 0; i < list.length; i++) {
-    if(str == list[i].title) return list[i]
-  }
-  return null;
-}
-function get_by_id(list, id) {
-  for (var i = 0; i < list.length; i++) {
-    if(id == list[i].id) return list[i]
-  }
-  return null;
-}
 
+/**
+  Parse graph.xml et crée le graphe en mémoire
+*/
 function graph() {
   var instream = fs.createReadStream('./graph.xml');
   var outstream = new stream;
@@ -207,7 +207,9 @@ function graph() {
 //-------------------------------------------------------------------//
 //-------------------------- CODE CLI -------------------------------//
 //-------------------------------------------------------------------//
-
+/**
+  Calcul le CLI et le garde en mémoire
+*/
 function calcul_cli() {
   var size = graph_array.length;
   l_array = [0];
@@ -228,39 +230,6 @@ function calcul_cli() {
   }
 }
 
-function get_line_matrice(j) {
-  var res = new Array();
-  var list_indice = new Array();
-  var n = 0, indice = 0, nb_elemt = l_array[j+1]-l_array[j];
-
-  for (var i = 0; i < matrice.length; i++) res.push(0);
-  if(nb_elemt == 0)   return res;
-
-  while ((n != j) && (indice < i_array.length)) {
-    if(i_array[indice] >= i_array[indice+1]) n++;
-    indice ++;
-  }
-  while((i_array[indice] < i_array[indice+1]) && ((indice+1)<i_array.length)) {
-    list_indice.push(i_array[indice++]);
-  }
-  if(indice == i_array.length) indice--;
-  list_indice.push(i_array[indice]);
-  indice = l_array[j];
-  if(nb_elemt == 1) res[list_indice[0]] = c_array[indice];
-
-  for (var i = 0; i < list_indice.length; i++) res[list_indice[i]] = c_array[indice++];
-
-  return res;
-}
-
-function affichage_array() {
-  console.log("Tableau L : ");
-  console.log(l_array);
-  console.log("Tableau C : ");
-  console.log(c_array);
-  console.log("Tableau I : ");
-  console.log(i_array);
-}
 
 //-------------------------------------------------------------------//
 //------------------------ END CODE CLI -----------------------------//
@@ -284,7 +253,9 @@ serv.get("/", function (req, res) {
 function lower_noaccent(word) {
   return accents.remove(word.toString().toLocaleLowerCase());
 }
-
+/**
+ permet de retourner un tableau contenant les mots pertinent de la recherche.
+*/
 function cleanSearchWord(word){
   if(word.length > 3 && word.length <= 60){
       let item = lower_noaccent(word);
@@ -304,7 +275,9 @@ function cleanSearchWord(word){
       return tab;
   }
 }
-
+/**
+  Permet de trier l'historique des recherches par ordre de recherche
+*/
 function sortHistory(mot){
   const index = search_word.indexOf(mot);
   if (index > -1) {
@@ -312,7 +285,9 @@ function sortHistory(mot){
   }
   search_word.push(mot);
 }
-
+/**
+  Recherche les mots dans le collector et retourne une liste de liens
+*/
 function processSearch(req){
   return new Promise((successCallback2, failureCallback) => {
     if(!search_word.includes(req.body.search)) search_word.push(String(req.body.search));

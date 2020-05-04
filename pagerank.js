@@ -2,6 +2,9 @@
 //-------------------------------------------------------------------//
 //------------------------ CODE PAGERANK ----------------------------//
 //-------------------------------------------------------------------//
+/**
+  Calcul le produitentre le vecteur et la matrice transposé (grâce au CLI)
+*/
 function produit_vecteur_matrice(c_array, l_array, i_array, v) {
   var n = l_array.length-1, dimV = v.length;
   var p = new Array();

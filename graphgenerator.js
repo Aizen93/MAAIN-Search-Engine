@@ -9,8 +9,11 @@ var saxPath = require('saxpath');
 var string = "";
 var count = 1;
 
+/**
+  entree : corpus_stream le chemin un writestream de corpus.xml
+  sortie : true si la liste contient au moins un des mots de regex, false sinon
+*/
 function parser(corpus_stream) {
-
   var streamer = new saxPath.SaXPath(saxParser, '//page');
   var fileStream = fs.createReadStream("./corpus.xml");
   streamer.on('match', function(xml) {
@@ -37,7 +40,6 @@ function parser(corpus_stream) {
         var TP = string1.length + string2.indexOf(sub2);
         var res = buffer1.substring(SP,TP);
         var tmp = res.split('|')[0];
-        //console.log(tmp);
         if(tmp.includes("[[")){
           var list = tmp.split(sub1);
           list.forEach((item, i) => {
@@ -55,8 +57,6 @@ function parser(corpus_stream) {
     }
     corpus_stream.write("   </link>\n\t");
     corpus_stream.write("</page>\n\t");
-    
-    //console.log('titre : '+title+', id : '+id);
   });
   fileStream.on('error', function(){
     console.log("Error parsing file !!!");
@@ -70,29 +70,17 @@ function parser(corpus_stream) {
   fileStream.pipe(saxParser);
 }
 
+/**
+  fonction qui appelle le parser
+*/
 function graph(){
   var corpus_stream = fs.createWriteStream('./graph.xml');
-  var start = new Date().getTime();
-  var words_occurence = new  Map();
-
   corpus_stream.write('<graph version="0.10" xml:lang="fr">\n\t');
-
   parser(corpus_stream);
-
-  var end = new Date().getTime();
-  var time = end - start;
-  console.log(end - start);
 }
 
 graph();
 
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
 //-------------------------------------------------------------------//
 //------------------------ END CODE GRAPH ---------------------------//
 //-------------------------------------------------------------------//

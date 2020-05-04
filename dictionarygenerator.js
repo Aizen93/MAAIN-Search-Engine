@@ -17,6 +17,9 @@ var NBRPAGES = 450000;
 //---------------- CODE DICTIONNAIRE & CCOLLECTOR -------------------//
 //-------------------------------------------------------------------//
 
+/**
+  * Fonction permettant de récupérer les occurences mot-page
+  */
 function dictionary(){
   var fileStream = fs.createReadStream("./corpus.xml");
   var streamer = new saxPath.SaXPath(saxParser, '//page');
@@ -31,23 +34,23 @@ function dictionary(){
 
         console.log("page :"+count+" titre : "+title+"\n______________________________________\n");
         console.log(mot_page.size);
-        
+
         indexOfFirst = xml.indexOf('<text xml:space="preserve">')+27;
         indexOfLast = xml.indexOf('</text>') - indexOfFirst;
         xml = xml.substr(indexOfFirst, indexOfLast);
         let tab = tokenizer.tokenize(xml);
-        
+
         tab.forEach((word, i) => {
           if(word.length > 3 && word.length <= 15 && word != "apos" && word != "quot"){
             let item = lower_noaccent(word);
-          
+
             const regex = /[&,/<>{}=@0-9*+()-_|\n]/g;
             const found = item.match(regex);
             if(found == null){
               if(mot_page.get(item) != null){
                 words_occurence.set(item, words_occurence.get(item) + 1);
                 let tmp = mot_page.get(item);
-                if(!tmp.includes(title) && tmp.length < 1500){
+                if(tmp.length < 1500 && !tmp.includes(title) && ((i - tab.indexOf(word)) >= 4){
                   tmp.push(title);
                   mot_page.set(item, tmp);
                 }
@@ -55,7 +58,6 @@ function dictionary(){
                 if(mot_page.size < 600000){
                   words_occurence.set(item, 1);
                   let title_liste = new Array();
-                  title_liste.push(title);
                   mot_page.set(item, title_liste);
                 }
               }
@@ -86,7 +88,7 @@ function dictionary(){
       }
     }
   });
-  
+
   streamer.on('error', function(){
     console.log("Error parsing file !!!");
 
@@ -108,6 +110,10 @@ function dictionary(){
   fileStream.pipe(saxParser);
 }
 
+/**
+  * entree : word, un mot
+  * sortie : word sans accent et en minuscule
+  */
 function lower_noaccent(word) {
   return accents.remove(word.toString().toLocaleLowerCase());
 }
@@ -121,14 +127,14 @@ function lower_noaccent(word) {
 //-------------------- CODE COLLECTOR GENERATOR ---------------------//
 //-------------------------------------------------------------------//
 /**
- * On utilise le dictionnaire pour créer le collector (relation mot-page) 
+ * On utilise le dictionnaire pour créer le collector (relation mot-page)
  * on ne prend que les 10k mot les plus fréquents dans le corpus
  */
 function generateCollector(){
   console.log("generating collector ....");
   var collector_stream = fs.createWriteStream("./collector.xml", {flags:'a'});
   collector_stream.write('<collector version="0.10" xml:lang="fr">\n');
-  
+
   dictionary_array.forEach((item) => {
     if(mot_page.get(item) != null){
       collector_stream.write(
@@ -151,38 +157,8 @@ function generateCollector(){
   console.log("Collector generated succesfully");
 }
 
-function splitTolink(title){
-  var elements = title.split(' ');
-  var cpt = 0;
-  const link_header = 'https://fr.wikipedia.org/wiki/';
-  var link_body ='';
-  elements.forEach(element => {
-    if(cpt < elements.length-1){ 
-      link_body += element+'_'
-    }else{
-      link_body += element
-    }
-    cpt++;
-
-  });
-  return link_header+link_body;
-}
-
-function wordToLink(title){
-  var link = 'https://fr.wikipedia.org/wiki/';
-  for(var pos = 0; pos < title.length; pos++) {
-      var c = title.charAt(pos);
-      if(c == ' ' || c == '\t') {
-          link+='_';
-      }else{
-          link+=c;
-      }
-  };
-  return link;
-}
+dictionary();
 
 //-------------------------------------------------------------------//
 //------------------ END CODE COLLECTOR GENERATOR -------------------//
 //-------------------------------------------------------------------//
-
-dictionary();
