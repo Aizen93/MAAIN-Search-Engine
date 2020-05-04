@@ -51,8 +51,6 @@ function collectorLauncherMemory(){
 
           collector.set(m, new Array());
           mot = m;
-          if(count >= 9980) console.log("- " + m);
-          if(count == 5000) console.log("- " + m);
         }
         count++;
       }
