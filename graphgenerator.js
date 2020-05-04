@@ -17,7 +17,12 @@ var count = 0;
 
 const cliProgress = require('cli-progress');
 // create new progress bar
-const b1 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+const b1 = new cliProgress.SingleBar({
+  format: 'Graph en cours... |' + ('{bar}') + '| {percentage}% | {value}/{total} Pages totales | ETA: {eta}s',
+  barCompleteChar: '\u2588',
+  barIncompleteChar: '\u2591',
+  hideCursor: true
+});
 
 /**
   entree : corpus_stream le chemin un writestream de corpus.xml
