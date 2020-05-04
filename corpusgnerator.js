@@ -24,7 +24,7 @@ const b1 = new cliProgress.SingleBar({
     format: 'Corpus en cours... |' + ('{bar}') + '| {percentage}% | {value}/{total} Pages parcourues | ETA: {eta}s',
     barCompleteChar: '\u2588',
     barIncompleteChar: '\u2591',
-    hideCursor: true
+    hideCursor: false
   });
 /**
 entree : une liste de mots
