@@ -257,21 +257,21 @@ function lower_noaccent(word) {
 */
 function cleanSearchWord(word){
   if(word.length > 3 && word.length <= 60){
-      let item = lower_noaccent(word);
+    let item = lower_noaccent(word);
 
-      var tokenizer = new natural.AggressiveTokenizerFr();
-      var tab = tokenizer.tokenize(item);
-      const regex = /[&,/<>{}=@0-9*+()-_|\n]/g;
-      for(var i = 0; i <tab.length; i++) {
-          if(tab[i].length < 3 || tab[i].match(regex)){
-              const index = tab.indexOf(tab[i]);
-              if (index > -1) {
-                  tab.splice(index, 1);
-                  i -= 1;
-              }
-          }
+    var tokenizer = new natural.AggressiveTokenizerFr();
+    var tab = tokenizer.tokenize(item);
+    const regex = /[&,/<>{}=@0-9*+()-_|\n]/g;
+    for(var i = 0; i <tab.length; i++) {
+      if(tab[i].length < 3 || tab[i].match(regex)){
+        const index = tab.indexOf(tab[i]);
+        if (index > -1) {
+          tab.splice(index, 1);
+          i -= 1;
+        }
       }
-      return tab;
+    }
+    return tab;
   }
 }
 /**
@@ -341,7 +341,6 @@ serv.post("/", function (req, res) {
       res.render("pages/index", {history: search_word, data:links.length, list: resu, current: page, pages: Math.ceil(links.length / perPage)});
       }
     );
-
 });
 
 //-------------------------------------------------------------------//

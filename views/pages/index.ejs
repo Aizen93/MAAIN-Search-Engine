@@ -50,7 +50,7 @@
 				<ul class="list-content">
 				<% if (list!=null) { %>
 					<% for (var attr = 0; attr < list.length; attr++) { %>
-						<% if (list[attr].match("&apos;")) { %>
+						<% if (list[attr].includes("&apos;")) { %>
 							<% list[attr] = list[attr].replace("&apos;","'") %>
 						<%}%>
 						<%var lien ='https://fr.wikipedia.org/wiki/'%>
