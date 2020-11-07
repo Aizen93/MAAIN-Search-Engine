@@ -14,8 +14,8 @@
 
 - Installation de la dernière version de NodeJS
 - Clone du dépôt git via l'une de ces deux commandes: 
-  - SSH: `git clone git@gaufre.informatique.univ-paris-diderot.fr:aouessar/wikipedia-search-engine.git`
-  - HTTPS: `git clone https://gaufre.informatique.univ-paris-diderot.fr/aouessar/wikipedia-search-engine.git`
+  - SSH: `git clone git@github.com:Aizen93/MAAIN-Search-Engine.git`
+  - HTTPS: `git clone https://github.com/Aizen93/MAAIN-Search-Engine.git`
 
 #### 2. Générer les fichiers XML:
 
@@ -27,7 +27,7 @@
 
   `node --max-old-space-size=6096 dictionarygenerator.js <corpus filepath>`
 
-- Sinon, si vous souhaitez accéder à distances, aux trois fichiers XML déjà préparés, voici le lien vers une machine de l'UFR afin de les recuperer :
+- Sinon, si vous souhaitez accéder à distances, aux trois fichiers XML déjà préparés (uniquement pour les étudiants de l'université de Paris), voici le lien vers une machine de l'UFR afin de les recuperer (serveur):
   - `/info/nouveaux/aouessar/Desktop/maain/corpus.xml`
   - `/info/nouveaux/aouessar/Desktop/maain/graph.xml`
   - `/info/nouveaux/aouessar/Desktop/maain/collector.xml`
